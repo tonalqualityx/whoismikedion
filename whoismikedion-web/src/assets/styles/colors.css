@@ -1,0 +1,248 @@
+/**
+ * Who Is Mike Dion - Color Palette
+ * CSS Custom Properties (Variables)
+ * 
+ * Usage in components:
+ * color: var(--color-primary);
+ * background-color: var(--color-accent-amber);
+ */
+
+:root {
+  /* ============================================
+     PRIMARY COLORS - Brand Foundation
+     ============================================ */
+  
+  --color-primary: #2C5F6F;           /* Deep Teal */
+  --color-primary-dark: #1F4450;      /* Darker variant for hover states */
+  --color-primary-light: #3A7A8F;     /* Lighter variant for backgrounds */
+  
+  --color-secondary: #3D5A80;         /* Slate Blue */
+  --color-secondary-dark: #2D4560;    /* Darker variant */
+  --color-secondary-light: #5171A0;   /* Lighter variant */
+  
+  /* ============================================
+     ACCENT COLORS - Warmth & Action
+     ============================================ */
+  
+  --color-accent-amber: #E07A5F;      /* Warm Amber - Primary CTA */
+  --color-accent-amber-dark: #C66850; /* Darker for hover */
+  --color-accent-amber-light: #E89580; /* Lighter variant */
+  
+  --color-accent-coral: #F2A294;      /* Soft Coral - Secondary CTA */
+  --color-accent-coral-dark: #E08A7C; /* Darker for hover */
+  --color-accent-coral-light: #F5BAB0; /* Lighter variant */
+  
+  /* ============================================
+     NEUTRAL COLORS - Structure & Readability
+     ============================================ */
+  
+  --color-text-primary: #2B2D42;      /* Charcoal - Body text */
+  --color-text-secondary: #8D99AE;    /* Warm Grey - Captions */
+  --color-text-inverse: #FFFFFF;      /* White text on dark backgrounds */
+  
+  --color-bg-primary: #FFFFFF;        /* White - Main background */
+  --color-bg-secondary: #F8F9FA;      /* Off-White - Alt background */
+  --color-bg-tertiary: #EDF2F4;       /* Light Grey - Cards/sections */
+  
+  --color-border: #E5E7EB;            /* Light border */
+  --color-border-dark: #D1D5DB;       /* Darker border */
+  
+  /* ============================================
+     SEMANTIC COLORS - Feedback & States
+     ============================================ */
+  
+  --color-success: #52B788;           /* Success Green */
+  --color-success-bg: #D1F4E0;        /* Light green background */
+  
+  --color-warning: #F4A261;           /* Warning Yellow */
+  --color-warning-bg: #FEF3E2;        /* Light yellow background */
+  
+  --color-error: #E63946;             /* Error Red */
+  --color-error-bg: #FFE5E7;          /* Light red background */
+  
+  --color-info: #3D5A80;              /* Info (uses secondary) */
+  --color-info-bg: #E8EEF5;           /* Light blue background */
+  
+  /* ============================================
+     SKILL PROFICIENCY COLORS
+     ============================================ */
+  
+  --color-skill-expert: #E07A5F;      /* Expert - Warm Amber */
+  --color-skill-proficient: #3D5A80;  /* Proficient - Slate Blue */
+  --color-skill-developing: #F4A261;  /* Developing - Warning Yellow */
+  
+  /* ============================================
+     SHADOWS & ELEVATION
+     ============================================ */
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  
+  /* ============================================
+     GRADIENTS
+     ============================================ */
+  
+  --gradient-primary: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  --gradient-warm: linear-gradient(135deg, var(--color-accent-amber) 0%, var(--color-accent-coral) 100%);
+  --gradient-subtle: linear-gradient(180deg, var(--color-bg-primary) 0%, var(--color-bg-tertiary) 100%);
+  
+  /* ============================================
+     OPACITY VARIANTS (for overlays, disabled states)
+     ============================================ */
+  
+  --opacity-disabled: 0.5;
+  --opacity-hover: 0.9;
+  --opacity-subtle: 0.7;
+  
+  /* ============================================
+     SPACING (Optional - can be separate file)
+     ============================================ */
+  
+  --spacing-xs: 0.25rem;    /* 4px */
+  --spacing-sm: 0.5rem;     /* 8px */
+  --spacing-md: 1rem;       /* 16px */
+  --spacing-lg: 1.5rem;     /* 24px */
+  --spacing-xl: 2rem;       /* 32px */
+  --spacing-2xl: 3rem;      /* 48px */
+  
+  /* ============================================
+     BORDER RADIUS
+     ============================================ */
+  
+  --radius-sm: 0.25rem;     /* 4px */
+  --radius-md: 0.5rem;      /* 8px */
+  --radius-lg: 0.75rem;     /* 12px */
+  --radius-xl: 1rem;        /* 16px */
+  --radius-full: 9999px;    /* Fully rounded */
+  
+  /* ============================================
+     TRANSITIONS
+     ============================================ */
+  
+  --transition-fast: 150ms ease-in-out;
+  --transition-base: 250ms ease-in-out;
+  --transition-slow: 350ms ease-in-out;
+}
+
+/* ============================================
+   COMPONENT-SPECIFIC CUSTOM PROPERTIES
+   (Override these in individual components if needed)
+   ============================================ */
+
+/* Buttons */
+.btn-primary {
+  background-color: var(--color-accent-amber);
+  color: var(--color-text-inverse);
+  border: none;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: var(--radius-md);
+  transition: background-color var(--transition-base);
+}
+
+.btn-primary:hover {
+  background-color: var(--color-accent-amber-dark);
+}
+
+.btn-secondary {
+  background-color: var(--color-accent-coral);
+  color: var(--color-text-primary);
+  border: none;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: var(--radius-md);
+  transition: background-color var(--transition-base);
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-accent-coral-dark);
+}
+
+/* Links */
+a {
+  color: var(--color-secondary);
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--color-accent-amber);
+}
+
+/* Cards */
+.card {
+  background-color: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-md);
+  transition: box-shadow var(--transition-base);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+/* Skill Tags */
+.skill-expert {
+  background-color: var(--color-skill-expert);
+  color: var(--color-text-inverse);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.skill-proficient {
+  background-color: var(--color-skill-proficient);
+  color: var(--color-text-inverse);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.skill-developing {
+  background-color: var(--color-skill-developing);
+  color: var(--color-text-inverse);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+/* Text Utilities */
+.text-primary {
+  color: var(--color-text-primary);
+}
+
+.text-secondary {
+  color: var(--color-text-secondary);
+}
+
+.text-inverse {
+  color: var(--color-text-inverse);
+}
+
+/* Background Utilities */
+.bg-primary {
+  background-color: var(--color-bg-primary);
+}
+
+.bg-secondary {
+  background-color: var(--color-bg-secondary);
+}
+
+.bg-tertiary {
+  background-color: var(--color-bg-tertiary);
+}
+
+/* Brand Backgrounds */
+.bg-brand-primary {
+  background-color: var(--color-primary);
+  color: var(--color-text-inverse);
+}
+
+.bg-brand-secondary {
+  background-color: var(--color-secondary);
+  color: var(--color-text-inverse);
+}

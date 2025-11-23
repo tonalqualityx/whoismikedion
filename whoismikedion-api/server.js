@@ -34,6 +34,9 @@ app.get('/health', (req, res) => {
     });
 });
 
+const profileRoutes = require('./routes/profile');
+app.use('/api/profile', profileRoutes);
+
 // Root endpoint - welcome message
 app.get('/', (req, res) => {
     res.json({
@@ -46,7 +49,7 @@ app.get('/', (req, res) => {
     });
 });
 
-// TODO add /api/profile route later.
+// TODO add stories, work, chat routes in later sprints.
 
 // =========================================
 // ERROR HANDLING

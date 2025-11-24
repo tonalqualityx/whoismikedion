@@ -37,6 +37,9 @@ app.get('/health', (req, res) => {
 const profileRoutes = require('./routes/profile');
 app.use('/api/profile', profileRoutes);
 
+const storiesRoutes = require('./routes/stories');
+app.use('/api/stories', storiesRoutes);
+
 // Root endpoint - welcome message
 app.get('/', (req, res) => {
     res.json({

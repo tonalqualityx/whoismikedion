@@ -78,6 +78,9 @@
                 v-if="story.work_history && story.work_history.length > 0"
             >
                 <h2>Related Experience</h2>
+                <router-link to="/work" class="view-all-work">
+                  View All Experience →
+                </router-link>
                 <div class="work-list">
                     <div
                         v-for="(work, index) in story.work_history"
@@ -89,6 +92,10 @@
                         <p class="work-dates">{{ work.dates }}</p>
                     </div>
                 </div>
+
+                <p class="work-context-note">
+                  This story was developed during my time at {{  story.work_history[0].company }}.
+                </p>
             </section>
         </article>
     </div>
@@ -398,6 +405,35 @@ export default {
   font-style: italic;
 }
 
+.work-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+}
+
+.view-all-work {
+  color: var(--color-secondary);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: color var(--transition-fast);
+}
+
+.view-all-work:hover {
+  color: var(--color-accent-amber);
+}
+
+.work-context-note {
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--radius-sm);
+  font-style: italic;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .story-detail-page {
@@ -416,4 +452,6 @@ export default {
     grid-template-columns: 1fr;
   }
 }
+
+
 </style>

@@ -10,10 +10,9 @@
              <div class="navbar-links">
                 <router-link to="/" class="nav-link">Profile</router-link>
                 <router-link to="/stories" class="nav-link">Stories</router-link>
+                <router-link to="/work" class="nav-link">Work History</router-link>
+                <router-link to="/chat" class="nav-link">Chat</router-link>
 
-                <!-- Future links -->
-                <!-- <router-link to="/work" class="nav-link">Work History</router-link> -->
-                <!-- <router-link to="/chat" class="nav-link">Chat</router-link> -->
              </div>
         </div>
     </nav>
@@ -76,6 +75,18 @@ export default {
   background-color: rgba(255, 255, 255, 0.2);
   opacity: 1;
   font-weight: 600;
+}
+
+.chat-link {
+  background-color: var(--color-accent-amber);
+  color: white !important;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  transition: background-color var(--transition-base);
+}
+
+.chat-link:hover {
+  background-color: var(--color-accent-amber-dark);
 }
 
 /* Mobile responsive */

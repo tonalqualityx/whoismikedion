@@ -40,6 +40,12 @@ app.use('/api/profile', profileRoutes);
 const storiesRoutes = require('./routes/stories');
 app.use('/api/stories', storiesRoutes);
 
+const workRoutes = require('./routes/work');
+app.use('/api/work-history', workRoutes);
+
+const chatRoutes = require('./routes/chat');
+app.use('/api/chat', chatRoutes);
+
 // Root endpoint - welcome message
 app.get('/', (req, res) => {
     res.json({

@@ -1,5 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import ProfilePage from '../views/ProfilePage.vue'
+import StoriesPage from '@/views/StoriesPage.vue';
+import StoryDetailPage from '@/views/StoryDetailPage.vue';
+import WorkHistoryPage from '@/views/WorkHistoryPage.vue';
+import ChatPage from '@/views/ChatPage.vue'; 
 
 const routes = [
   {
@@ -19,6 +23,18 @@ const routes = [
     name: 'story-detail',
     component: () => import('../views/StoryDetailPage.vue'),
     meta: {title: 'Story Detail - Who Is Mike Dion?'}
+  },
+  {
+    path: '/work',
+    name: 'work',
+    component: () => import('../views/WorkHistoryPage.vue'),
+    meta: {title: 'Work History - Who Is Mike Dion?'}
+  },
+  {
+    path: '/chat',
+    name: 'Chat',
+    component: ChatPage,
+    meta: {title: 'Chat with Mike Dion - Who Is Mike Dion?'}
   },
   {
     path: '/:pathMatch(.*)*',

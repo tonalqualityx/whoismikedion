@@ -1,213 +1,269 @@
 /**
- * Who Is Mike Dion - Color Palette
- * CSS Custom Properties (Variables)
- * 
- * Usage in components:
- * color: var(--color-primary);
- * background-color: var(--color-accent-amber);
+ * Who Is Mike Dion - Design System
+ * Dark Theme Color Palette
+ * Mobile-First CSS Custom Properties
  */
 
 :root {
   /* ============================================
-     PRIMARY COLORS - Brand Foundation
+     BACKGROUND COLORS
      ============================================ */
-  
-  --color-primary: #2C5F6F;           /* Deep Teal */
-  --color-primary-dark: #1F4450;      /* Darker variant for hover states */
-  --color-primary-light: #3A7A8F;     /* Lighter variant for backgrounds */
-  
-  --color-secondary: #3D5A80;         /* Slate Blue */
-  --color-secondary-dark: #2D4560;    /* Darker variant */
-  --color-secondary-light: #5171A0;   /* Lighter variant */
-  
+
+  --color-bg-primary: #101c22;              /* Main dark background */
+  --color-bg-secondary: #233c48;            /* Card/button backgrounds */
+  --color-bg-tertiary: rgba(255,255,255,0.05);  /* Subtle card backgrounds */
+  --color-bg-elevated: rgba(255,255,255,0.1);   /* Elevated surfaces */
+
   /* ============================================
-     ACCENT COLORS - Warmth & Action
+     TEXT COLORS
      ============================================ */
-  
-  --color-accent-amber: #E07A5F;      /* Warm Amber - Primary CTA */
-  --color-accent-amber-dark: #C66850; /* Darker for hover */
-  --color-accent-amber-light: #E89580; /* Lighter variant */
-  
-  --color-accent-coral: #F2A294;      /* Soft Coral - Secondary CTA */
-  --color-accent-coral-dark: #E08A7C; /* Darker for hover */
-  --color-accent-coral-light: #F5BAB0; /* Lighter variant */
-  
+
+  --color-text-primary: #ffffff;            /* Primary text */
+  --color-text-secondary: #e2e8f0;          /* Secondary text (slate-200) */
+  --color-text-muted: #92b7c9;              /* Muted/accent text */
+  --color-text-tertiary: #cbd5e1;           /* Tertiary text (slate-300) */
+
   /* ============================================
-     NEUTRAL COLORS - Structure & Readability
+     PRIMARY ACCENT - Brand Blue
      ============================================ */
-  
-  --color-text-primary: #2B2D42;      /* Charcoal - Body text */
-  --color-text-secondary: #8D99AE;    /* Warm Grey - Captions */
-  --color-text-inverse: #FFFFFF;      /* White text on dark backgrounds */
-  
-  --color-bg-primary: #FFFFFF;        /* White - Main background */
-  --color-bg-secondary: #F8F9FA;      /* Off-White - Alt background */
-  --color-bg-tertiary: #EDF2F4;       /* Light Grey - Cards/sections */
-  
-  --color-border: #E5E7EB;            /* Light border */
-  --color-border-dark: #D1D5DB;       /* Darker border */
-  
+
+  --color-primary: #13a4ec;                 /* Primary blue */
+  --color-primary-hover: rgba(19,164,236,0.9);
+  --color-primary-subtle: rgba(19,164,236,0.2);
+  --color-primary-muted: rgba(19,164,236,0.3);
+
   /* ============================================
-     SEMANTIC COLORS - Feedback & States
+     BORDERS
      ============================================ */
-  
-  --color-success: #52B788;           /* Success Green */
-  --color-success-bg: #D1F4E0;        /* Light green background */
-  
-  --color-warning: #F4A261;           /* Warning Yellow */
-  --color-warning-bg: #FEF3E2;        /* Light yellow background */
-  
-  --color-error: #E63946;             /* Error Red */
-  --color-error-bg: #FFE5E7;          /* Light red background */
-  
-  --color-info: #3D5A80;              /* Info (uses secondary) */
-  --color-info-bg: #E8EEF5;           /* Light blue background */
-  
+
+  --color-border: rgba(255,255,255,0.1);    /* Default border */
+  --color-border-strong: #1e293b;           /* Strong border (slate-800) */
+  --color-border-subtle: rgba(255,255,255,0.05);
+
   /* ============================================
-     SKILL PROFICIENCY COLORS
+     SEMANTIC COLORS
      ============================================ */
-  
-  --color-skill-expert: #E07A5F;      /* Expert - Warm Amber */
-  --color-skill-proficient: #3D5A80;  /* Proficient - Slate Blue */
-  --color-skill-developing: #F4A261;  /* Developing - Warning Yellow */
-  
+
+  --color-success: #52B788;
+  --color-success-subtle: rgba(82,183,136,0.2);
+
+  --color-warning: #F4A261;
+  --color-warning-subtle: rgba(244,162,97,0.2);
+
+  --color-error: #E63946;
+  --color-error-subtle: rgba(230,57,70,0.2);
+
+  --color-info: #13a4ec;
+  --color-info-subtle: rgba(19,164,236,0.2);
+
   /* ============================================
-     SHADOWS & ELEVATION
+     SKILL PROFICIENCY COLORS (Dark Theme)
      ============================================ */
-  
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  
+
+  --color-skill-expert: rgba(19,164,236,0.2);
+  --color-skill-expert-text: #13a4ec;
+
+  --color-skill-proficient: #1e293b;
+  --color-skill-proficient-text: #cbd5e1;
+
+  --color-skill-developing: rgba(244,162,97,0.2);
+  --color-skill-developing-text: #F4A261;
+
   /* ============================================
-     GRADIENTS
+     SHADOWS (adjusted for dark theme)
      ============================================ */
-  
-  --gradient-primary: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
-  --gradient-warm: linear-gradient(135deg, var(--color-accent-amber) 0%, var(--color-accent-coral) 100%);
-  --gradient-subtle: linear-gradient(180deg, var(--color-bg-primary) 0%, var(--color-bg-tertiary) 100%);
-  
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+
   /* ============================================
-     OPACITY VARIANTS (for overlays, disabled states)
+     SPACING SCALE
      ============================================ */
-  
-  --opacity-disabled: 0.5;
-  --opacity-hover: 0.9;
-  --opacity-subtle: 0.7;
-  
+
+  --spacing-1: 0.25rem;   /* 4px */
+  --spacing-2: 0.5rem;    /* 8px */
+  --spacing-3: 0.75rem;   /* 12px */
+  --spacing-4: 1rem;      /* 16px */
+  --spacing-5: 1.25rem;   /* 20px */
+  --spacing-6: 1.5rem;    /* 24px */
+  --spacing-8: 2rem;      /* 32px */
+  --spacing-10: 2.5rem;   /* 40px */
+  --spacing-12: 3rem;     /* 48px */
+  --spacing-16: 4rem;     /* 64px */
+  --spacing-20: 5rem;     /* 80px */
+
   /* ============================================
-     SPACING (Optional - can be separate file)
+     TYPOGRAPHY SCALE
      ============================================ */
-  
-  --spacing-xs: 0.25rem;    /* 4px */
-  --spacing-sm: 0.5rem;     /* 8px */
-  --spacing-md: 1rem;       /* 16px */
-  --spacing-lg: 1.5rem;     /* 24px */
-  --spacing-xl: 2rem;       /* 32px */
-  --spacing-2xl: 3rem;      /* 48px */
-  
+
+  --text-xs: 0.75rem;     /* 12px */
+  --text-sm: 0.875rem;    /* 14px */
+  --text-base: 1rem;      /* 16px */
+  --text-lg: 1.125rem;    /* 18px */
+  --text-xl: 1.25rem;     /* 20px */
+  --text-2xl: 1.5rem;     /* 24px */
+  --text-3xl: 2rem;       /* 32px */
+  --text-4xl: 2.5rem;     /* 40px */
+  --text-5xl: 3rem;       /* 48px */
+
   /* ============================================
      BORDER RADIUS
      ============================================ */
-  
-  --radius-sm: 0.25rem;     /* 4px */
-  --radius-md: 0.5rem;      /* 8px */
-  --radius-lg: 0.75rem;     /* 12px */
-  --radius-xl: 1rem;        /* 16px */
-  --radius-full: 9999px;    /* Fully rounded */
-  
+
+  --radius-sm: 0.25rem;   /* 4px */
+  --radius-md: 0.5rem;    /* 8px */
+  --radius-lg: 0.75rem;   /* 12px */
+  --radius-xl: 1rem;      /* 16px */
+  --radius-2xl: 1.5rem;   /* 24px */
+  --radius-full: 9999px;  /* Pill/circle */
+
   /* ============================================
      TRANSITIONS
      ============================================ */
-  
+
   --transition-fast: 150ms ease-in-out;
   --transition-base: 250ms ease-in-out;
   --transition-slow: 350ms ease-in-out;
+
+  /* ============================================
+     LAYOUT
+     ============================================ */
+
+  --max-width-content: 960px;
+  --header-height: 64px;
 }
 
 /* ============================================
-   COMPONENT-SPECIFIC CUSTOM PROPERTIES
-   (Override these in individual components if needed)
+   REUSABLE COMPONENT CLASSES
    ============================================ */
 
 /* Buttons */
-.btn-primary {
-  background-color: var(--color-accent-amber);
-  color: var(--color-text-inverse);
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-2) var(--spacing-6);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  border-radius: var(--radius-lg);
   border: none;
-  padding: var(--spacing-sm) var(--spacing-lg);
-  border-radius: var(--radius-md);
-  transition: background-color var(--transition-base);
+  cursor: pointer;
+  transition: background-color var(--transition-base), color var(--transition-base);
+  min-width: 84px;
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: var(--color-text-primary);
 }
 
 .btn-primary:hover {
-  background-color: var(--color-accent-amber-dark);
+  background-color: var(--color-primary-hover);
 }
 
 .btn-secondary {
-  background-color: var(--color-accent-coral);
+  background-color: var(--color-bg-secondary);
   color: var(--color-text-primary);
-  border: none;
-  padding: var(--spacing-sm) var(--spacing-lg);
-  border-radius: var(--radius-md);
-  transition: background-color var(--transition-base);
 }
 
 .btn-secondary:hover {
-  background-color: var(--color-accent-coral-dark);
-}
-
-/* Links */
-a {
-  color: var(--color-secondary);
-  transition: color var(--transition-fast);
-}
-
-a:hover {
-  color: var(--color-accent-amber);
+  background-color: var(--color-primary-subtle);
+  color: var(--color-primary);
 }
 
 /* Cards */
 .card {
-  background-color: var(--color-bg-primary);
+  background-color: var(--color-bg-tertiary);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-lg);
-  box-shadow: var(--shadow-md);
-  transition: box-shadow var(--transition-base);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-4);
 }
 
-.card:hover {
-  box-shadow: var(--shadow-lg);
+@media (min-width: 640px) {
+  .card {
+    padding: var(--spacing-6);
+  }
 }
 
 /* Skill Tags */
-.skill-expert {
-  background-color: var(--color-skill-expert);
-  color: var(--color-text-inverse);
-  padding: var(--spacing-xs) var(--spacing-sm);
-  border-radius: var(--radius-sm);
-  font-size: 0.875rem;
-  font-weight: 600;
+.skill-tag {
+  display: inline-block;
+  padding: var(--spacing-1) var(--spacing-3);
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: 500;
 }
 
-.skill-proficient {
+.skill-tag--primary {
+  background-color: var(--color-primary-subtle);
+  color: var(--color-primary);
+}
+
+.skill-tag--secondary {
   background-color: var(--color-skill-proficient);
-  color: var(--color-text-inverse);
-  padding: var(--spacing-xs) var(--spacing-sm);
-  border-radius: var(--radius-sm);
-  font-size: 0.875rem;
-  font-weight: 600;
+  color: var(--color-text-tertiary);
 }
 
-.skill-developing {
+.skill-tag--expert {
+  background-color: var(--color-skill-expert);
+  color: var(--color-skill-expert-text);
+}
+
+.skill-tag--proficient {
+  background-color: var(--color-skill-proficient);
+  color: var(--color-skill-proficient-text);
+}
+
+.skill-tag--developing {
   background-color: var(--color-skill-developing);
-  color: var(--color-text-inverse);
-  padding: var(--spacing-xs) var(--spacing-sm);
-  border-radius: var(--radius-sm);
-  font-size: 0.875rem;
-  font-weight: 600;
+  color: var(--color-skill-developing-text);
+}
+
+/* Section Title */
+.section-title {
+  font-size: 1.375rem; /* 22px */
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-6);
+}
+
+/* Container */
+.container {
+  width: 100%;
+  max-width: var(--max-width-content);
+  margin: 0 auto;
+  padding: 0 var(--spacing-4);
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding: 0 var(--spacing-8);
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding: 0 var(--spacing-20);
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding: 0 var(--spacing-20);
+  }
+}
+
+/* Links */
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--color-text-primary);
 }
 
 /* Text Utilities */
@@ -219,30 +275,6 @@ a:hover {
   color: var(--color-text-secondary);
 }
 
-.text-inverse {
-  color: var(--color-text-inverse);
-}
-
-/* Background Utilities */
-.bg-primary {
-  background-color: var(--color-bg-primary);
-}
-
-.bg-secondary {
-  background-color: var(--color-bg-secondary);
-}
-
-.bg-tertiary {
-  background-color: var(--color-bg-tertiary);
-}
-
-/* Brand Backgrounds */
-.bg-brand-primary {
-  background-color: var(--color-primary);
-  color: var(--color-text-inverse);
-}
-
-.bg-brand-secondary {
-  background-color: var(--color-secondary);
-  color: var(--color-text-inverse);
+.text-muted {
+  color: var(--color-text-muted);
 }

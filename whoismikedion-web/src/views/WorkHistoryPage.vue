@@ -1,275 +1,322 @@
 <template>
-    <div class="work-history-page">
+  <div class="work-page">
+    <div class="container">
 
-        <!-- PAGE HEADER -->
-        <div class="page-header">
-            <h1>Work History</h1>
-            <p class="tagline">
-                Career progression in product management, systems thinking, and technical delivery
-            </p>
-        </div>
+      <!-- PAGE HEADER -->
+      <header class="page-header">
+        <h1>Work History</h1>
+        <p class="page-subtitle">
+          Career progression in product management, systems thinking, and technical delivery
+        </p>
+      </header>
 
-        <!-- Loading State -->
-        <div v-if="loading" class="loading">
-            <p>Loading work history...</p>
-        </div>
+      <!-- Loading State -->
+      <div v-if="loading" class="loading">
+        <p>Loading work history...</p>
+      </div>
 
-        <!-- ERROR State -->
-        <div v-else-if="error" class="error">
-            <p>{{ error }}</p>
-            <button @click="fetchWorkHistory" class="retry-button">Retry</button>
-        </div>
+      <!-- Error State -->
+      <div v-else-if="error" class="error-state">
+        <p>{{ error }}</p>
+        <button class="btn btn-primary" @click="fetchWorkHistory">Retry</button>
+      </div>
 
-        <!-- Timeline -->
-        <div v-else-if="jobs.length > 0" class="timeline">
+      <!-- Timeline -->
+      <div v-else-if="jobs.length > 0" class="timeline">
 
-            <!-- JOB CARD -->
-            <div
-                v-for="job in jobs"
-                :key="job.id"
-                class="job-card"
-            >
+        <div
+          v-for="(job, index) in jobs"
+          :key="job.id"
+          class="timeline-item"
+        >
+          <!-- Timeline Dot -->
+          <div class="timeline-dot">
+            <div class="dot-inner" :class="{ 'dot-current': job.is_current }"></div>
+          </div>
 
-                <!-- TIMELINE DOT -->
-                <div class="timeline-dot"></div>
+          <!-- Date Column (visible on desktop) -->
+          <div class="timeline-date">
+            <span class="date-text">{{ job.dates }}</span>
+            <span class="duration-text">{{ formatDuration(job.duration_months) }}</span>
+          </div>
 
-                <!-- JOB CONTENT -->
-                <div class="job-content">
-                    <!-- HEADER -->
-                    <div class="job-header">
-                        <div class="job-title-section">
-                            <h2 class="job-title">{{ job.title }}</h2>
-                            <h3 class="company-name">{{ job.company }}</h3>
-                        </div>
-
-                        <span v-if="job.is_current" class="current-badge">
-                            Current
-                        </span>
-                    </div>
-
-                    <!-- DATES & DURATION -->
-                    <div class="job-meta">
-                        <span class="date-range">{{ job.dates }}</span>
-                        <span class="duration">{{ formatDuration(job.duration_months) }}</span>
-                    </div>
-
-                    <!-- KEY ACCOMPLISHMENTS -->
-                    <div
-                        v-if="job.key_accomplishments && job.key_accomplishments.length > 0"
-                        class="accomplishments"
-                    >
-                        <h4>Key Accomplishments</h4>
-                        <ul>
-                            <li
-                                v-for="(accomplishment, index) in job.key_accomplishments"
-                                :key="index"
-                            >
-                                {{ accomplishment }}
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- RELATED STORIES -->
-                    <div
-                        v-if="job.stories && job.stories.length > 0"
-                        class="related-stories"
-                    >
-                        <h4>
-                            Related Success stories
-                            <span class="story-count-badge">{{ job.story_count }}</span>
-                        </h4>
-
-                        <div class="story-links">
-                            <router-link
-                                v-for="story in job.stories"
-                                :key="story.story_id"
-                                :to="`/stories/${story.story_id}`"
-                                class="story-link"
-                            >
-                                → {{ story.title }}
-                            </router-link>
-                        </div>
-
-                    </div>
-
-                </div>
-
+          <!-- Job Card -->
+          <div class="job-card card">
+            <!-- Mobile Date (hidden on desktop) -->
+            <div class="job-date-mobile">
+              <span class="date-text">{{ job.dates }}</span>
+              <span class="duration-text">{{ formatDuration(job.duration_months) }}</span>
             </div>
+
+            <!-- Header -->
+            <div class="job-header">
+              <div class="job-titles">
+                <h2 class="job-title">{{ job.title }}</h2>
+                <h3 class="company-name">{{ job.company }}</h3>
+              </div>
+              <span v-if="job.is_current" class="current-badge">Current</span>
+            </div>
+
+            <!-- Accomplishments (expandable on mobile) -->
+            <details
+              v-if="job.key_accomplishments?.length"
+              class="accomplishments-section"
+              :open="index === 0"
+            >
+              <summary class="accomplishments-header">
+                Key Accomplishments
+                <span class="expand-icon"></span>
+              </summary>
+              <ul class="accomplishments-list">
+                <li
+                  v-for="(accomplishment, idx) in job.key_accomplishments"
+                  :key="idx"
+                >
+                  {{ accomplishment }}
+                </li>
+              </ul>
+            </details>
+
+            <!-- Related Stories -->
+            <div v-if="job.stories?.length" class="related-stories">
+              <h4 class="stories-header">
+                Related Stories
+                <span class="story-count">{{ job.story_count }}</span>
+              </h4>
+              <div class="story-links">
+                <router-link
+                  v-for="story in job.stories"
+                  :key="story.story_id"
+                  :to="`/stories/${story.story_id}`"
+                  class="story-link"
+                >
+                  {{ story.title }}
+                </router-link>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <!-- EMPTY STATE -->
-        <div v-else class="empty-state">
-            <p>No work history found.</p>
-        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div v-else class="empty-state">
+        <p>No work history available.</p>
+      </div>
 
     </div>
+  </div>
 </template>
 
 <script>
-import {ref, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import axios from 'axios';
+import config from '@/config';
 
 export default {
-    name: 'WorkHistoryPage',
+  name: 'WorkHistoryPage',
 
-    setup() {
-        const jobs = ref([]);
-        const loading = ref(true);
-        const error = ref(null);
+  setup() {
+    const jobs = ref([]);
+    const loading = ref(true);
+    const error = ref(null);
 
-        const fetchWorkHistory = async () => {
-            try {
-                loading.value = true;
-                error.value = null;
+    const fetchWorkHistory = async () => {
+      try {
+        loading.value = true;
+        error.value = null;
 
-                console.log('Fetching work history...');
+        const response = await axios.get(`${config.API_BASE}/work-history`);
+        jobs.value = response.data.jobs;
+      } catch (err) {
+        console.error('Failed to fetch work history:', err);
+        error.value = 'Failed to load work history. Please try again.';
+      } finally {
+        loading.value = false;
+      }
+    };
 
-                const response = await axios.get('http://localhost:3000/api/work-history');
-                jobs.value = response.data.jobs;
+    const formatDuration = (months) => {
+      const years = Math.floor(months / 12);
+      const remainingMonths = months % 12;
 
-                console.log(`Loaded ${jobs.value.length} jobs`);
+      if (years === 0) {
+        return `${months} mo`;
+      } else if (remainingMonths === 0) {
+        return `${years} ${years === 1 ? 'yr' : 'yrs'}`;
+      } else {
+        return `${years} ${years === 1 ? 'yr' : 'yrs'} ${remainingMonths} mo`;
+      }
+    };
 
-            } catch (err) {
-                console.error('Failed to fetch work history:', err);
-                error.value = 'Failed to load work history.';
-            } finally {
-                loading.value = false;
-            }
-        };
+    onMounted(() => {
+      fetchWorkHistory();
+    });
 
-        // Format duration from months to "X yrs Y mo"
-        const formatDuration = (months) => {
-            const years = Math.floor(months / 12);
-            const remainingMonths = months % 12;
-            
-            if (years === 0) {
-                return `${months} mo`;
-            } else if (remainingMonths === 0) {
-                return `${years} ${years === 1 ? 'yr' : 'yrs'}`;
-            } else {
-                return `${years} ${years === 1 ? 'yr' : 'yrs'} ${remainingMonths} mo`;
-            }
-        };
-
-        onMounted(() => {
-            fetchWorkHistory();
-        });
-
-        return {
-            jobs,
-            loading,
-            error,
-            fetchWorkHistory,
-            formatDuration
-        };
-    }
-}
-
+    return {
+      jobs,
+      loading,
+      error,
+      fetchWorkHistory,
+      formatDuration,
+    };
+  },
+};
 </script>
 
-
 <style scoped>
-.work-history-page {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 2rem;
+/* ============================================
+   WORK HISTORY PAGE - Mobile First
+   ============================================ */
+
+.work-page {
+  padding: var(--spacing-4) 0;
 }
+
+@media (min-width: 640px) {
+  .work-page {
+    padding: var(--spacing-8) 0;
+  }
+}
+
+/* ============================================
+   PAGE HEADER
+   ============================================ */
 
 .page-header {
   text-align: center;
-  margin-bottom: var(--spacing-2xl);
+  margin-bottom: var(--spacing-10);
 }
 
-.page-header h1 {
-  color: var(--color-primary);
-  font-size: 2.5rem;
-  margin-bottom: var(--spacing-sm);
+.page-subtitle {
+  color: var(--color-text-muted);
+  font-size: var(--text-lg);
+  max-width: 500px;
+  margin: 0 auto;
 }
 
-.tagline {
-  color: var(--color-text-secondary);
-  font-size: 1.125rem;
-}
+/* ============================================
+   LOADING & ERROR STATES
+   ============================================ */
 
-/* Loading and Error States */
-.loading,
-.error {
+.loading {
   text-align: center;
-  padding: var(--spacing-2xl);
+  padding: var(--spacing-16);
+  color: var(--color-text-muted);
+  font-size: var(--text-lg);
 }
 
-.error {
-  background-color: var(--color-error-bg);
+.error-state {
+  text-align: center;
+  padding: var(--spacing-8);
+  background: var(--color-error-subtle);
   border: 1px solid var(--color-error);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
+}
+
+.error-state p {
   color: var(--color-error);
+  margin-bottom: var(--spacing-4);
 }
 
-.retry-button {
-  margin-top: var(--spacing-md);
-  padding: var(--spacing-sm) var(--spacing-lg);
-  background-color: var(--color-accent-amber);
-  color: white;
-  border: none;
-  border-radius: var(--radius-md);
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color var(--transition-base);
+.empty-state {
+  text-align: center;
+  padding: var(--spacing-16);
+  color: var(--color-text-muted);
 }
 
-.retry-button:hover {
-  background-color: var(--color-accent-amber-dark);
-}
+/* ============================================
+   TIMELINE - Mobile First (left-aligned)
+   ============================================ */
 
-/* Timeline */
 .timeline {
   position: relative;
-  padding-left: 2rem;
+  padding-left: var(--spacing-8);
 }
 
-/* Vertical line connecting jobs */
+/* Vertical line */
 .timeline::before {
   content: '';
   position: absolute;
-  left: 0.75rem;
+  left: var(--spacing-4);
   top: 0;
   bottom: 0;
   width: 2px;
-  background-color: var(--color-border-dark);
+  background: var(--color-border);
 }
 
-/* Job Card */
-.job-card {
+.timeline-item {
   position: relative;
-  margin-bottom: var(--spacing-2xl);
+  margin-bottom: var(--spacing-8);
 }
 
-/* Timeline Dot */
+.timeline-item:last-child {
+  margin-bottom: 0;
+}
+
+/* ============================================
+   TIMELINE DOT
+   ============================================ */
+
 .timeline-dot {
   position: absolute;
-  left: -1.5rem;
-  top: 0.5rem;
-  width: 1rem;
-  height: 1rem;
-  border-radius: 50%;
-  background-color: var(--color-primary);
+  left: calc(-1 * var(--spacing-8) + var(--spacing-4) - 12px);
+  top: var(--spacing-4);
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dot-inner {
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
   border: 3px solid var(--color-bg-primary);
-  z-index: 1;
+  box-shadow: 0 0 0 2px var(--color-primary-subtle);
 }
 
-/* Job Content Card */
-.job-content {
-  background-color: var(--color-bg-primary);
-  border: 1px solid var(--color-border);
-  border-left: 4px solid var(--color-primary);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-xl);
-  box-shadow: var(--shadow-md);
-  transition: box-shadow var(--transition-base);
+.dot-current {
+  width: 16px;
+  height: 16px;
+  box-shadow: 0 0 0 4px var(--color-primary-subtle);
 }
 
-.job-content:hover {
-  box-shadow: var(--shadow-lg);
+/* ============================================
+   DATE COLUMN (hidden on mobile)
+   ============================================ */
+
+.timeline-date {
+  display: none;
+}
+
+/* ============================================
+   JOB CARD
+   ============================================ */
+
+.job-card {
+  position: relative;
+}
+
+/* Mobile date display */
+.job-date-mobile {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-3);
+}
+
+.date-text {
+  color: var(--color-text-primary);
+  font-weight: 600;
+  font-size: var(--text-sm);
+}
+
+.duration-text {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
 }
 
 /* Job Header */
@@ -277,191 +324,239 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: var(--spacing-md);
-  flex-wrap: wrap;
-  gap: var(--spacing-md);
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-4);
 }
 
-.job-title-section {
+.job-titles {
   flex: 1;
-  min-width: 200px;
 }
 
 .job-title {
-  color: var(--color-text-primary);
-  font-size: 1.5rem;
-  margin: 0 0 var(--spacing-xs) 0;
+  font-size: var(--text-xl);
+  font-weight: 700;
+  margin-bottom: var(--spacing-1);
 }
 
 .company-name {
-  color: var(--color-secondary);
-  font-size: 1.25rem;
+  font-size: var(--text-base);
   font-weight: 600;
+  color: var(--color-primary);
   margin: 0;
 }
 
 .current-badge {
   display: inline-block;
-  background: linear-gradient(135deg, var(--color-accent-amber) 0%, var(--color-accent-coral) 100%);
-  color: white;
-  padding: var(--spacing-xs) var(--spacing-md);
+  background: var(--color-success);
+  color: var(--color-text-primary);
+  padding: var(--spacing-1) var(--spacing-3);
   border-radius: var(--radius-full);
-  font-size: 0.875rem;
+  font-size: var(--text-xs);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  flex-shrink: 0;
 }
 
-/* Job Meta */
-.job-meta {
+/* ============================================
+   ACCOMPLISHMENTS (Expandable)
+   ============================================ */
+
+.accomplishments-section {
+  margin-bottom: var(--spacing-4);
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.accomplishments-header {
   display: flex;
-  gap: var(--spacing-lg);
-  margin-bottom: var(--spacing-lg);
-  flex-wrap: wrap;
-}
-
-.date-range {
-  color: var(--color-text-primary);
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-3) var(--spacing-4);
+  cursor: pointer;
+  font-size: var(--text-sm);
   font-weight: 600;
-  font-size: 1rem;
-}
-
-.duration {
-  color: var(--color-text-secondary);
-  font-style: italic;
-  font-size: 0.9rem;
-}
-
-/* Accomplishments */
-.accomplishments {
-  margin-bottom: var(--spacing-lg);
-  padding: var(--spacing-md);
-  background-color: var(--color-bg-secondary);
-  border-radius: var(--radius-md);
-}
-
-.accomplishments h4 {
   color: var(--color-text-primary);
-  font-size: 1rem;
-  margin: 0 0 var(--spacing-sm) 0;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  font-weight: 600;
+  list-style: none;
 }
 
-.accomplishments ul {
+.accomplishments-header::-webkit-details-marker {
+  display: none;
+}
+
+.expand-icon {
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid var(--color-text-muted);
+  transition: transform var(--transition-fast);
+}
+
+details[open] .expand-icon {
+  transform: rotate(180deg);
+}
+
+.accomplishments-list {
+  padding: 0 var(--spacing-4) var(--spacing-4) var(--spacing-8);
   margin: 0;
-  padding-left: var(--spacing-lg);
 }
 
-.accomplishments li {
-  color: var(--color-text-primary);
+.accomplishments-list li {
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
   line-height: 1.6;
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: var(--spacing-2);
 }
 
-.accomplishments li:last-child {
+.accomplishments-list li:last-child {
   margin-bottom: 0;
 }
 
-/* Related Stories */
+/* ============================================
+   RELATED STORIES
+   ============================================ */
+
 .related-stories {
-  padding: var(--spacing-md);
-  background-color: var(--color-info-bg);
-  border-radius: var(--radius-md);
-  border-left: 3px solid var(--color-secondary);
+  padding: var(--spacing-4);
+  background: var(--color-primary-subtle);
+  border-radius: var(--radius-lg);
+  border-left: 3px solid var(--color-primary);
 }
 
-.related-stories h4 {
-  color: var(--color-secondary);
-  font-size: 1rem;
-  margin: 0 0 var(--spacing-md) 0;
+.stories-header {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-2);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-primary);
+  margin-bottom: var(--spacing-3);
 }
 
-.story-count-badge {
+.story-count {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--color-secondary);
-  color: white;
-  width: 1.5rem;
-  height: 1.5rem;
-  border-radius: 50%;
-  font-size: 0.875rem;
+  width: 20px;
+  height: 20px;
+  background: var(--color-primary);
+  color: var(--color-text-primary);
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
   font-weight: 700;
 }
 
 .story-links {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-2);
 }
 
 .story-link {
-  color: var(--color-secondary);
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
   text-decoration: none;
-  font-weight: 500;
-  transition: all var(--transition-fast);
-  padding: var(--spacing-xs) var(--spacing-sm);
-  border-radius: var(--radius-sm);
+  padding: var(--spacing-2);
+  border-radius: var(--radius-md);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
 }
 
 .story-link:hover {
-  color: var(--color-accent-amber);
-  background-color: rgba(224, 122, 95, 0.1);
-  padding-left: var(--spacing-md);
+  background: var(--color-bg-tertiary);
+  color: var(--color-primary);
 }
 
-/* Empty State */
-.empty-state {
-  text-align: center;
-  padding: var(--spacing-2xl);
-  background-color: var(--color-bg-tertiary);
-  border-radius: var(--radius-lg);
-  color: var(--color-text-secondary);
-}
+/* ============================================
+   DESKTOP STYLES
+   ============================================ */
 
-/* Mobile Responsive */
-@media (max-width: 768px) {
-  .work-history-page {
-    padding: 1rem;
-  }
-  
-  .page-header h1 {
-    font-size: 2rem;
-  }
-  
+@media (min-width: 768px) {
   .timeline {
-    padding-left: 1.5rem;
+    padding-left: 0;
+    max-width: 900px;
+    margin: 0 auto;
   }
-  
+
   .timeline::before {
-    left: 0.5rem;
+    left: 50%;
+    transform: translateX(-50%);
   }
-  
+
+  .timeline-item {
+    display: grid;
+    grid-template-columns: 1fr 32px 1fr;
+    gap: var(--spacing-6);
+    align-items: start;
+  }
+
   .timeline-dot {
-    left: -1.25rem;
-    width: 0.75rem;
-    height: 0.75rem;
+    position: static;
+    grid-column: 2;
+    grid-row: 1;
+    width: 32px;
+    height: 32px;
+    margin-top: var(--spacing-4);
   }
-  
-  .job-content {
-    padding: var(--spacing-lg);
+
+  .dot-inner {
+    width: 16px;
+    height: 16px;
   }
-  
-  .job-header {
+
+  .dot-current {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Date column visible on desktop */
+  .timeline-date {
+    display: flex;
     flex-direction: column;
+    padding-top: var(--spacing-4);
+    gap: var(--spacing-1);
   }
-  
+
+  .timeline-date .date-text {
+    font-size: var(--text-base);
+  }
+
+  /* Odd items: date on left, card on right */
+  .timeline-item:nth-child(odd) .timeline-date {
+    grid-column: 1;
+    grid-row: 1;
+    text-align: right;
+    align-items: flex-end;
+  }
+
+  .timeline-item:nth-child(odd) .job-card {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  /* Even items: card on left, date on right */
+  .timeline-item:nth-child(even) .timeline-date {
+    grid-column: 3;
+    grid-row: 1;
+    text-align: left;
+    align-items: flex-start;
+  }
+
+  .timeline-item:nth-child(even) .job-card {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  /* Hide mobile date on desktop */
+  .job-date-mobile {
+    display: none;
+  }
+
   .job-title {
-    font-size: 1.25rem;
-  }
-  
-  .company-name {
-    font-size: 1.125rem;
+    font-size: var(--text-2xl);
   }
 }
 </style>

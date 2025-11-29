@@ -1,61 +1,303 @@
-/* Global typography and base styles */
-* {
+/**
+ * Who Is Mike Dion - Base Styles
+ * Mobile-First Typography and Global Styles
+ */
+
+/* Import Manrope font */
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+/* Reset */
+*,
+*::before,
+*::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+/* Root font family variable */
+:root {
+  --font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Base body styles */
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  font-family: var(--font-family);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: var(--color-text-primary);
   background: var(--color-bg-primary);
   line-height: 1.6;
+  font-size: var(--text-base);
 }
 
-/* Global heading styles */
+/* ============================================
+   TYPOGRAPHY - Mobile First
+   ============================================ */
+
+/* Headings - Mobile sizes first */
 h1 {
-  color: var(--color-primary);
-  font-size: 2.5rem;
-  font-weight: 700;
+  color: var(--color-text-primary);
+  font-size: var(--text-3xl);  /* 32px mobile */
+  font-weight: 800;
   line-height: 1.2;
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: var(--spacing-4);
 }
 
 h2 {
-  color: var(--color-secondary);
-  font-size: 2rem;
-  font-weight: 600;
+  color: var(--color-text-primary);
+  font-size: var(--text-2xl);  /* 24px */
+  font-weight: 700;
   line-height: 1.3;
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-4);
 }
 
 h3 {
   color: var(--color-text-primary);
-  font-size: 1.5rem;
+  font-size: var(--text-xl);   /* 20px */
   font-weight: 600;
-  margin-bottom: var(--spacing-sm);
+  line-height: 1.4;
+  margin-bottom: var(--spacing-2);
 }
 
+h4 {
+  color: var(--color-text-primary);
+  font-size: var(--text-lg);   /* 18px */
+  font-weight: 600;
+  line-height: 1.4;
+  margin-bottom: var(--spacing-2);
+}
+
+/* Desktop heading sizes */
+@media (min-width: 640px) {
+  h1 {
+    font-size: var(--text-4xl);  /* 40px */
+  }
+
+  h2 {
+    font-size: var(--text-3xl);  /* 32px */
+  }
+}
+
+@media (min-width: 1024px) {
+  h1 {
+    font-size: var(--text-5xl);  /* 48px */
+  }
+}
+
+/* Paragraphs */
 p {
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-4);
+  color: var(--color-text-secondary);
 }
 
-/* Global button base (components can override) */
+p:last-child {
+  margin-bottom: 0;
+}
+
+/* Small text */
+small {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+/* ============================================
+   INTERACTIVE ELEMENTS
+   ============================================ */
+
+/* Buttons */
 button {
   cursor: pointer;
   font-family: inherit;
+  font-size: inherit;
+  border: none;
+  background: transparent;
   transition: all var(--transition-base);
 }
 
-/* Global link styles */
-a {
-  color: var(--color-secondary);
-  text-decoration: none;
-  transition: color var(--transition-fast);
+button:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
-a:hover {
-  color: var(--color-accent-amber);
+/* Links - defined in colors.css with component classes */
+
+/* Focus states for accessibility */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   LISTS
+   ============================================ */
+
+ul, ol {
+  padding-left: var(--spacing-6);
+  margin-bottom: var(--spacing-4);
+}
+
+li {
+  margin-bottom: var(--spacing-2);
+  color: var(--color-text-secondary);
+}
+
+li:last-child {
+  margin-bottom: 0;
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+/* Screen reader only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Visually hidden but focusable */
+.sr-only-focusable:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: inherit;
+  margin: inherit;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* Text alignment */
+.text-center {
+  text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+/* Flexbox utilities */
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.gap-2 {
+  gap: var(--spacing-2);
+}
+
+.gap-4 {
+  gap: var(--spacing-4);
+}
+
+.gap-6 {
+  gap: var(--spacing-6);
+}
+
+/* ============================================
+   SCROLLBAR STYLING (Dark Theme)
+   ============================================ */
+
+/* Webkit browsers */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) var(--color-bg-primary);
+}
+
+/* ============================================
+   SELECTION STYLING
+   ============================================ */
+
+::selection {
+  background: var(--color-primary-subtle);
+  color: var(--color-text-primary);
+}
+
+/* ============================================
+   IMAGES
+   ============================================ */
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ============================================
+   CODE BLOCKS (for any inline code)
+   ============================================ */
+
+code {
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+  font-size: 0.875em;
+  background: var(--color-bg-tertiary);
+  padding: 0.125rem 0.375rem;
+  border-radius: var(--radius-sm);
+  color: var(--color-primary);
+}
+
+pre {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-4);
+  overflow-x: auto;
+  margin-bottom: var(--spacing-4);
+}
+
+pre code {
+  background: transparent;
+  padding: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
 }

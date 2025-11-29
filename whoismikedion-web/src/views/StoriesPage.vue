@@ -1,268 +1,297 @@
 <template>
-    <div class="stories-page">
-        <h1>Success Stories</h1>
-        <p class="tagline">
-            Real examples of product strategy, systems thinking, and technical delivery.
-        </p>
-    </div>
+  <div class="stories-page">
+    <div class="container">
 
-    <!-- skill filter -->
-     <div class="filter-section">
-        <label for="skill-filter">Filter by skill:</label>
+      <!-- Page Header -->
+      <header class="page-header">
+        <h1>Success Stories</h1>
+        <p class="page-subtitle">
+          Real examples of product strategy, systems thinking, and technical delivery.
+        </p>
+      </header>
+
+      <!-- Skill Filter -->
+      <div class="filter-section">
+        <label for="skill-filter" class="filter-label">Filter by skill:</label>
         <select
-            id="skill-filter"
-            v-model="selectedSkill"
-            @change="filterStories"
-            class="skill-select"
+          id="skill-filter"
+          v-model="selectedSkill"
+          @change="filterStories"
+          class="skill-select"
         >
-            <option value="">All Skills</option>
-            <option value="product-strategy">Product Strategy</option>
-            <option value="systems-thinking">Systems Thinking</option>
-            <option value="technical-writing">Technical Writing</option>
-            <option value="stakeholder-management">Stakeholder Management</option>
-            <option value="nodejs">Node.js</option>
-            <option value="vuejs">Vue.js</option>
+          <option value="">All Skills</option>
+          <option value="product-strategy">Product Strategy</option>
+          <option value="systems-thinking">Systems Thinking</option>
+          <option value="stakeholder-management">Stakeholder Management</option>
+          <option value="nodejs">Node.js</option>
+          <option value="vuejs">Vue.js</option>
         </select>
 
-        <span v-if="filteredCount != totalCount" class="filter-info">
-            Showing {{ filteredCount }} of {{ totalCount }} stories
+        <span v-if="filteredCount !== totalCount" class="filter-info">
+          Showing {{ filteredCount }} of {{ totalCount }} stories
         </span>
-     </div>
+      </div>
 
-     <!-- Loading State -->
+      <!-- Loading State -->
       <div v-if="loading" class="loading">
         <p>Loading stories...</p>
       </div>
 
-      <!-- Error state -->
-       <div v-else-if="error" class="error">
-            <p>{{ error }}</p>
-            <button @click="fetchStories" class="retry-button">Retry</button>
-       </div>
+      <!-- Error State -->
+      <div v-else-if="error" class="error-state">
+        <p>{{ error }}</p>
+        <button class="btn btn-primary" @click="fetchStories">Retry</button>
+      </div>
 
-       <!-- Stories List-->
-        <div v-else-if="stories.length > 0" class="stories-list">
-            <StoryCard
-                v-for="story in stories"
-                :key="story.story_id"
-                :story="story"
-            />
-        </div>
-        
-        <!-- EMPTY State -->
-         <div v-else class="empty-state">
-            <p>No stories found.</p>
-            <p v-if="selectedSkill" class="empty-hint">
-                Try selecting a different skill or view all stories.
-            </p>
-         </div>
+      <!-- Stories Grid -->
+      <div v-else-if="stories.length > 0" class="stories-grid">
+        <StoryCard
+          v-for="story in stories"
+          :key="story.story_id"
+          :story="story"
+        />
+      </div>
+
+      <!-- Empty State -->
+      <div v-else class="empty-state">
+        <p>No stories found.</p>
+        <p v-if="selectedSkill" class="empty-hint">
+          Try selecting a different skill or view all stories.
+        </p>
+        <button
+          v-if="selectedSkill"
+          class="btn btn-secondary"
+          @click="clearFilter"
+        >
+          View All Stories
+        </button>
+      </div>
+
+    </div>
+  </div>
 </template>
 
 <script>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import StoryCard from '../components/StoryCard.vue';
+import config from '@/config';
 
 export default {
-    name: 'StoriesPage',
+  name: 'StoriesPage',
 
-    components: {
-        StoryCard
-    },
+  components: {
+    StoryCard,
+  },
 
-    setup() {
-        const stories = ref([]);
-        const loading = ref(true);
-        const error = ref(null);
-        const selectedSkill = ref('');
-        const totalCount = ref(0);
-        const filteredCount = ref(0);
+  setup() {
+    const stories = ref([]);
+    const loading = ref(true);
+    const error = ref(null);
+    const selectedSkill = ref('');
+    const totalCount = ref(0);
+    const filteredCount = ref(0);
 
-        const fetchStories = async () => {
-            try {
-                loading.value = true;
-                error.value = null;
+    const fetchStories = async () => {
+      try {
+        loading.value = true;
+        error.value = null;
 
-                let url = 'http://localhost:3000/api/stories';
-                if (selectedSkill.value ) {
-                    url += `?skill=${selectedSkill.value}`;
-                }
+        let url = `${config.API_BASE}/stories`;
+        if (selectedSkill.value) {
+          url += `?skill=${selectedSkill.value}`;
+        }
 
-                console.log('Fetching stories:', url);
+        const response = await axios.get(url);
 
-                const response = await axios.get(url);
+        stories.value = response.data.stories;
+        totalCount.value = response.data.total;
+        filteredCount.value = response.data.stories.length;
+      } catch (err) {
+        console.error('Failed to fetch stories:', err);
+        error.value = 'Failed to load stories. Please try again.';
+      } finally {
+        loading.value = false;
+      }
+    };
 
-                //update state
-                stories.value = response.data.stories;
-                totalCount.value = response.data.total;
-                filteredCount.value = response.data.total;
+    const filterStories = () => {
+      fetchStories();
+    };
 
-                console.log(`Loaded ${stories.value.length} stories`);
-            } catch (err) {
-                console.error('Failed to fetch stories:', err);
-                error.value = 'Failed to load stories. Is the back end server running?';
-            } finally {
-                loading.value = false;
-            }
-        };
+    const clearFilter = () => {
+      selectedSkill.value = '';
+      fetchStories();
+    };
 
-        // Handle skill filter change
-        const filterStories = () => {
-            fetchStories();
-        };
+    onMounted(() => {
+      fetchStories();
+    });
 
-        // Fetch on component mount
-        onMounted(() => {
-            fetchStories();
-        });
-
-        return {
-            stories,
-            loading,
-            error,
-            selectedSkill,
-            totalCount,
-            fetchStories,
-            filterStories,
-            filteredCount
-        };
-    }
-}
+    return {
+      stories,
+      loading,
+      error,
+      selectedSkill,
+      totalCount,
+      filteredCount,
+      fetchStories,
+      filterStories,
+      clearFilter,
+    };
+  },
+};
 </script>
 
 <style scoped>
+/* ============================================
+   STORIES PAGE - Mobile First
+   ============================================ */
+
 .stories-page {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
+  padding: var(--spacing-4) 0;
 }
+
+@media (min-width: 640px) {
+  .stories-page {
+    padding: var(--spacing-8) 0;
+  }
+}
+
+/* ============================================
+   PAGE HEADER
+   ============================================ */
 
 .page-header {
   text-align: center;
-  margin-bottom: var(--spacing-2xl);
+  margin-bottom: var(--spacing-8);
 }
 
-.page-header h1 {
-  color: var(--color-primary);
-  font-size: 2.5rem;
-  margin-bottom: var(--spacing-sm);
+.page-subtitle {
+  color: var(--color-text-muted);
+  font-size: var(--text-lg);
+  max-width: 500px;
+  margin: 0 auto;
 }
 
-.tagline {
-  color: var(--color-text-secondary);
-  font-size: 1.125rem;
-}
+/* ============================================
+   FILTER SECTION
+   ============================================ */
 
 .filter-section {
-  margin-bottom: var(--spacing-2xl);
-  padding: var(--spacing-lg);
-  background-color: var(--color-bg-tertiary);
-  border-radius: var(--radius-lg);
   display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  margin-bottom: var(--spacing-8);
+  padding: var(--spacing-4);
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
 }
 
-.filter-section label {
+@media (min-width: 640px) {
+  .filter-section {
+    flex-direction: row;
+    align-items: center;
+    padding: var(--spacing-4) var(--spacing-6);
+  }
+}
+
+.filter-label {
   font-weight: 600;
   color: var(--color-text-primary);
+  font-size: var(--text-sm);
 }
 
 .skill-select {
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--spacing-2) var(--spacing-4);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background-color: white;
-  font-size: 1rem;
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  font-size: var(--text-base);
+  font-family: inherit;
   cursor: pointer;
-  transition: border-color var(--transition-fast);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
   min-width: 200px;
 }
 
 .skill-select:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(44, 95, 111, 0.1);
+  box-shadow: 0 0 0 3px var(--color-primary-subtle);
+}
+
+.skill-select option {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
 }
 
 .filter-info {
-  color: var(--color-text-secondary);
-  font-size: 0.875rem;
-  font-style: italic;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  margin-left: auto;
 }
 
-.stories-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: 1.61rem;
-}
+/* ============================================
+   LOADING & ERROR STATES
+   ============================================ */
 
-/* Loading state */
 .loading {
   text-align: center;
-  padding: var(--spacing-2xl);
-  color: var(--color-text-secondary);
-  font-size: 1.125rem;
+  padding: var(--spacing-16);
+  color: var(--color-text-muted);
+  font-size: var(--text-lg);
 }
 
-/* Error state */
-.error {
+.error-state {
   text-align: center;
-  padding: var(--spacing-2xl);
-  background-color: var(--color-error-bg);
+  padding: var(--spacing-8);
+  background: var(--color-error-subtle);
   border: 1px solid var(--color-error);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
+}
+
+.error-state p {
   color: var(--color-error);
+  margin-bottom: var(--spacing-4);
 }
 
-.retry-button {
-  margin-top: var(--spacing-md);
-  padding: var(--spacing-sm) var(--spacing-lg);
-  background-color: var(--color-accent-amber);
-  color: white;
-  border: none;
-  border-radius: var(--radius-md);
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color var(--transition-base);
-}
-
-.retry-button:hover {
-  background-color: var(--color-accent-amber-dark);
-}
-
-/* Empty state */
 .empty-state {
   text-align: center;
-  padding: var(--spacing-2xl);
-  background-color: var(--color-bg-tertiary);
-  border-radius: var(--radius-lg);
-  color: var(--color-text-secondary);
+  padding: var(--spacing-12);
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+}
+
+.empty-state p {
+  color: var(--color-text-muted);
 }
 
 .empty-hint {
-  margin-top: var(--spacing-md);
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
+  margin-bottom: var(--spacing-4);
 }
 
-/* Mobile responsive */
-@media (max-width: 768px) {
-  .stories-page {
-    padding: 1rem;
+/* ============================================
+   STORIES GRID
+   ============================================ */
+
+.stories-grid {
+  display: grid;
+  gap: var(--spacing-6);
+}
+
+@media (min-width: 640px) {
+  .stories-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
-  
-  .page-header h1 {
-    font-size: 2rem;
-  }
-  
-  .filter-section {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .skill-select {
-    width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .stories-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 </style>

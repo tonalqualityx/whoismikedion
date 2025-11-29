@@ -1,136 +1,158 @@
 <template>
-    <router-link
-        :to="`/stories/${story.story_id}`"
-        class="story-card"
-    >
-        <!-- Story Title -->
-        <h3 class="story-title">{{ story.title }}</h3>
+  <router-link
+    :to="`/stories/${story.story_id}`"
+    class="story-card card"
+  >
+    <!-- Story Title -->
+    <h3 class="story-title">{{ story.title }}</h3>
 
-        <!-- Story Summary -->
-        <p class="story-summary">{{ story.summary }}</p>
+    <!-- Story Summary -->
+    <p class="story-summary">{{ story.summary }}</p>
 
-        <!-- Skill Tags -->
-         <div class="skills-section" v-if="story.skills && story.skills.length > 0">
-            <span class="skill-label">Demonstrates:</span>
-            <div class="skill-tags">
-                <span
-                    v-for="skill in story.skills"
-                    :key ="skill"
-                    class="skill-tag"
-                >
-                    {{  formatSkillName(skill) }}
-                </span>
-            </div>
-         </div>
+    <!-- Skill Tags -->
+    <div v-if="story.skills?.length" class="story-skills">
+      <span
+        v-for="skill in story.skills.slice(0, 4)"
+        :key="skill"
+        class="skill-tag skill-tag--primary"
+      >
+        {{ formatSkillName(skill) }}
+      </span>
+      <span
+        v-if="story.skills.length > 4"
+        class="skill-tag skill-tag--secondary"
+      >
+        +{{ story.skills.length - 4 }} more
+      </span>
+    </div>
 
-         <!--Quantifiable Impact -->
-         <div class="impact-section" v-if="story.quantifiable_impact">
-            <strong>Impact:</strong> {{  story.quantifiable_impact }}
-         </div>
-    </router-link>
+    <!-- Quantifiable Impact -->
+    <div v-if="story.quantifiable_impact" class="story-impact">
+      <span class="impact-label">Impact:</span>
+      <span class="impact-value">{{ story.quantifiable_impact }}</span>
+    </div>
+  </router-link>
 </template>
 
 <script>
 export default {
-    name: 'StoryCard',
+  name: 'StoryCard',
 
-    props: {
-        story: {
-            type: Object,
-            required: true
-        }
+  props: {
+    story: {
+      type: Object,
+      required: true,
     },
+  },
 
-    methods: {
-        formatSkillName(skillId) {
-            return skillId
-                .split('-')
-                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                .join(' ');
-        }
-    }
-} 
+  methods: {
+    formatSkillName(skillId) {
+      return skillId
+        .split('-')
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+    },
+  },
+};
 </script>
 
 <style scoped>
+/* ============================================
+   STORY CARD - Mobile First
+   ============================================ */
+
 .story-card {
-  display: block;
-  background-color: var(--color-bg-primary);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-lg);
-  margin-bottom: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
   text-decoration: none;
   color: inherit;
-  transition: all var(--transition-base);
-  box-shadow: var(--shadow-md);
+  height: 100%;
+  transition: transform var(--transition-base), box-shadow var(--transition-base), border-color var(--transition-base);
 }
 
 .story-card:hover {
+  transform: translateY(-4px);
   box-shadow: var(--shadow-lg);
-  transform: translateY(-2px);
   border-color: var(--color-primary);
 }
 
+/* ============================================
+   STORY TITLE
+   ============================================ */
+
 .story-title {
-  color: var(--color-primary);
-  font-size: 1.5rem;
-  margin-bottom: var(--spacing-sm);
+  color: var(--color-text-primary);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  margin-bottom: var(--spacing-2);
+  line-height: 1.3;
+  transition: color var(--transition-fast);
 }
+
+.story-card:hover .story-title {
+  color: var(--color-primary);
+}
+
+/* ============================================
+   STORY SUMMARY
+   ============================================ */
 
 .story-summary {
-  color: var(--color-text-primary);
-  margin-bottom: var(--spacing-md);
-  line-height: 1.6;
-}
-
-.skills-section {
-  margin-bottom: var(--spacing-md);
-}
-
-.skill-label {
-  font-size: 0.875rem;
   color: var(--color-text-secondary);
-  font-weight: 600;
-  display: block;
-  margin-bottom: var(--spacing-xs);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  margin-bottom: var(--spacing-4);
+  flex-grow: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.skills-tags {
+/* ============================================
+   SKILL TAGS
+   ============================================ */
+
+.story-skills {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-4);
 }
 
-.skill-tag {
-  background-color: var(--color-secondary);
-  color: white;
-  padding: var(--spacing-xs) var(--spacing-sm);
-  border-radius: var(--radius-sm);
-  font-size: 0.875rem;
-  font-weight: 600;
-}
+/* ============================================
+   IMPACT SECTION
+   ============================================ */
 
-.impact-section {
-  padding: var(--spacing-sm);
-  background-color: var(--color-bg-secondary);
+.story-impact {
+  padding: var(--spacing-3);
+  background: var(--color-success-subtle);
   border-radius: var(--radius-md);
-  font-size: 0.9rem;
-  color: var(--color-text-primary);
+  font-size: var(--text-sm);
+  margin-top: auto;
 }
 
-.impact-section strong {
-  color: var(--color-accent-amber);
+.impact-label {
+  color: var(--color-success);
+  font-weight: 600;
+  margin-right: var(--spacing-1);
 }
 
-/* Mobile responsive */
-@media (max-width: 768px) {
+.impact-value {
+  color: var(--color-text-secondary);
+}
+
+/* ============================================
+   DESKTOP STYLES
+   ============================================ */
+
+@media (min-width: 640px) {
   .story-title {
-    font-size: 1.25rem;
+    font-size: var(--text-xl);
   }
-  
+
   .story-summary {
-    font-size: 0.9rem;
+    font-size: var(--text-base);
   }
 }
 </style>

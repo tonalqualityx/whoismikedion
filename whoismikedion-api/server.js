@@ -3,6 +3,7 @@ require('dotenv').config();
 // Imports
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const db = require('./db/connection');
 const app = express();
 
@@ -46,19 +47,25 @@ app.use('/api/work-history', workRoutes);
 const chatRoutes = require('./routes/chat');
 app.use('/api/chat', chatRoutes);
 
-// Root endpoint - welcome message
-app.get('/', (req, res) => {
-    res.json({
-        message: 'Who Is Mike Dion API IS',
-        version: '1.0.0',
-        endpoints: {
-            health: '/health',
-            profile: '/api/profile'
-        }
-    });
-});
+// // Root endpoint - welcome message
+// app.get('/', (req, res) => {
+//     res.json({
+//         message: 'Who Is Mike Dion API IS',
+//         version: '1.0.0',
+//         endpoints: {
+//             health: '/health',
+//             profile: '/api/profile'
+//         }
+//     });
+// });
 
-// TODO add stories, work, chat routes in later sprints.
+if (process.env.NODE_ENV === 'production' ) {
+    app.use(express.static(path.join(__dirname, '../whoismikedion-web/dist')));
+
+    app.get('/{*splat}', (req, res) => {
+        res.sendFile(path.join(__dirname, '../whoismikedion-web/dist/index.html'));
+    });
+}
 
 // =========================================
 // ERROR HANDLING

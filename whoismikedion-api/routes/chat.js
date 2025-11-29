@@ -15,142 +15,146 @@ const router = express.Router();
 const { v4: uuidv4 } = require('uuid');
 
 const db = require('../db/connection');
+const claudeService = require('../services/claude');
+const contextBuilder = require('../services/context-builder');
 
-/**
- * POST /api/chat
- * 
- * Send a message and receive a response.
- * Creates new session if session_id not provided.
- * 
- * Request body:
- * {
- *   "session_id": "uuid-string" (optional),
- *   "message": "user's message"
- * }
- * 
- * Response:
- * {
- *   "session_id": "uuid-string",
- *   "messages": [...],
- *   "is_new_session": boolean
- * }
- */
+const CONFIG = {
+  // Maximum conversation history to send to Claude
+  maxHistoryMessages: 10,
+  
+  // Fallback response if AI fails
+  fallbackResponse: "I apologize, but I'm having trouble generating a response right now. Please try again in a moment, or feel free to explore Mike's profile and stories pages to learn more about his experience."
+};
+
 
 router.post('/', async (req, res) => {
     try {
         const { session_id, message } = req.body;
 
-        if(!message || typeof message !== 'string' || message.trim() === '') {
+        if(!message || message.trim().length === 0) {
             return res.status(400).json({
-                error: 'Message is required',
-                details: 'Please provide a non-empty message.'
+                error: 'Message cannot be empty',
+                details: 'Please provide a valid message to send'
             });
+            
         }
 
-        const cleanMessage = message.trim();
+        const userMessage = message.trim();
 
-        // =================================
-        // GET OR CREATE CHAT SESSION
-        // =================================
-        let sessionInternalId;
-        let sessionUUID;
-        let isNewSesssion = false;
+        let sessionDbId;
+        let sessionUuid;
+        let isNewSession = false;
+        let conversationHistory = [];
 
         if (session_id) {
-
             const [sessions] = await db.query(
                 'SELECT id, session_id FROM chat_sessions WHERE session_id = ?',
                 [session_id]
             );
 
-            if ( sessions.length === 0 ) {
+            if (sessions.length === 0) {
                 return res.status(404).json({
                     error: 'Session not found',
-                    details: `No chat session found with ID ${session_id}`
+                    details: 'No chat session found with that ID'
                 });
             }
 
-            sessionInternalId = sessions[0].id;
-            sessionUUID = sessions[0].session_id;
-            
-        } else {
+            sessionDbId = sessions[0].id;
+            sessionUuid = sessions[0].session_id;
 
-            sessionUUID = uuidv4();
-            isNewSesssion = true;
-
-            const [result] = await db.query(
-                'INSERT INTO chat_sessions (session_id, message_count) VALUES (?, 0)',
-                [sessionUUID]
+            const [history] = await db.query(
+                `SELECT role, content FROM chat_messages
+                WHERE session_id = ?
+                ORDER BY created_at DESC
+                LIMIT ?`,
+                [sessionDbId, CONFIG.maxHistoryMessages]
             );
 
-            sessionInternalId = result.insertId;
+            // Reverse to get chronological order (oldest first) for Claude
+            conversationHistory = history.reverse();
 
-            console.log(`Created new chat session: ${sessionUUID}`);
+        } else {
+            sessionUuid = uuidv4();
+            const [result] = await db.query(
+                'INSERT INTO chat_sessions (session_id) VALUES (?)',
+                [sessionUuid]
+            );
+            sessionDbId = result.insertId;
+            isNewSession = true;
         }
 
-        // =================================
-        // STORE USER MESSAGE
-        // =================================
+        const { context, metadata: contextMetadata } = await contextBuilder.buildContext(userMessage);
 
-        const [userMessageResult] = await db.query(
-            `INSERT INTO chat_messages (session_id, role, content)
-            VALUES (?, 'user', ?)`,
-            [sessionInternalId, cleanMessage]
+
+        let assistantReponse;
+        let aiMetadata = {};
+
+        try {
+            const aiResult = await claudeService.generateResponse({
+                userMessage,
+                conversationHistory,
+                context
+            });
+
+            assistantReponse = aiResult.response;
+            aiMetadata = {
+                model: aiResult.model,
+                usage: aiResult.usage,
+                stopReason: aiResult.stopReason
+            };
+        } catch (aiError) {
+            console.error('AI response error:', aiError);
+            assistantReponse = CONFIG.fallbackResponse;
+
+            aiMetadata = {
+                error: aiError.message,
+                usedFallback: true
+            };
+        }
+
+        const contextUsed = JSON.stringify({
+            keywords: contextMetadata.keywords,
+            skillsFound: contextMetadata.skillsFound,
+            storiesFound: contextMetadata.storiesFound,
+            includesWeaknesses: contextMetadata.includesWeaknesses,
+            ...aiMetadata
+        });
+
+        const [userMsgResult] = await db.query(
+            'INSERT INTO chat_messages (session_id, role, content) VALUES (?, ?, ?)',
+            [sessionDbId, 'user', userMessage]
         );
 
-        const userMessageId = userMessageResult.insertId;
-
-        // =================================
-        // ECHO BOT RESPONSE (Placeholder for Claude AI integration)
-        // =================================
-
-        const assistantResponse = generateEchoResponse(cleanMessage);
-
-        // =================================
-        // STORE ASSISTANT MESSAGE
-        // =================================
-
-        const [assistantMessageResult] = await db.query(
-            `INSERT INTO chat_messages (session_id, role, content, context_used)
-            VALUES (?, 'assistant', ?, ?)`,
-            [sessionInternalId, assistantResponse, JSON.stringify({ type: 'echo' })]
+        const [assistantMsgResult] = await db.query(
+            'INSERT INTO chat_messages (session_id, role, content, context_used) VALUES (?, ?, ?, ?)',
+            [sessionDbId, 'assistant', assistantReponse, contextUsed]
         );
-
-        const assistantMessageId = assistantMessageResult.insertId;
-
-        // =================================
-        // UPDATE MESSAGE COUNT
-        // =================================
 
         await db.query(
-            `UPDATE chat_sessions SET message_count = message_count + 2 WHERE id = ?`,
-            [sessionInternalId]
+            'UPDATE chat_sessions SET message_count = message_count + 2 WHERE id = ?',
+            [sessionDbId]
         );
-
-        // =================================
-        // FETCH NEW MESSAGES TO RETURN
-        // =================================
 
         const [newMessages] = await db.query(
             `SELECT id, role, content, created_at
             FROM chat_messages
             WHERE id IN (?, ?)
             ORDER BY created_at ASC`,
-            [userMessageId, assistantMessageId]
+            [userMsgResult.insertId, assistantMsgResult.insertId]
         );
 
-        // =================================
-        // RESPOND TO CLIENT
-        // =================================
-
         res.json({
-            session_id: sessionUUID,
+            session_id: sessionUuid,
             messages: newMessages,
-            is_new_session: isNewSesssion
+            is_new_session: isNewSession,
+            metadata: {
+                keywords: contextMetadata.keywords,
+                skillsFound: contextMetadata.skillsFound,
+                storiesFound: contextMetadata.storiesFound,
+            }
         });
     } catch (error) {
-
-        console.error('Chat error:', error);
+        console.error('Chat POST error:', error);
         res.status(500).json({
             error: 'Failed to process chat message',
             details: process.env.NODE_ENV === 'development' ? error.message : undefined

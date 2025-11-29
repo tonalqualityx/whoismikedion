@@ -57,6 +57,7 @@ router.get('/', async (req, res) => {
         const [valueRows] = await db.query(`
             SELECT
                 id,
+                value_text,
                 description
             FROM core_values
             ORDER BY display_order ASC
@@ -81,9 +82,9 @@ router.get('/', async (req, res) => {
                 category: skill.category
             })),
 
-            // Values
-            values: valueRows.map(value => ({
-                text: value.value_text,
+            // Core values
+            core_values: valueRows.map(value => ({
+                value_text: value.value_text,
                 description: value.description
             }))
         });

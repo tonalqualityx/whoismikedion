@@ -225,22 +225,38 @@ export default {
         async function handleSubmit() {
         // Don't submit empty messages
         if (!newMessage.value.trim()) return;
-        
+
         // Don't submit while already sending
         if (sending.value) return;
 
-        sending.value = true;
-        error.value = null;
-
         const messageText = newMessage.value.trim();
         newMessage.value = '';  // Clear input immediately for UX
+
+        // Create temporary user message and show it immediately
+        const tempUserMessage = {
+            id: `temp-${Date.now()}`,
+            role: 'user',
+            content: messageText,
+            created_at: new Date().toISOString()
+        };
+        messages.value.push(tempUserMessage);
+
+        // Scroll to show user message
+        await nextTick();
+        scrollToBottom();
+
+        // Start loading indicator, then scroll again to show it
+        sending.value = true;
+        error.value = null;
+        await nextTick();
+        scrollToBottom();
 
         try {
             // Build request body
             const requestBody = {
             message: messageText
             };
-            
+
             // Include session ID if we have one
             if (sessionId.value) {
             requestBody.session_id = sessionId.value;
@@ -255,22 +271,41 @@ export default {
             localStorage.setItem('chat_session_id', response.data.session_id);
             }
 
-            // Add new messages to our list
-            messages.value.push(...response.data.messages);
+            // Update temp user message with real server data, add assistant message
+            const serverMessages = response.data.messages;
+            const userMsg = serverMessages.find(m => m.role === 'user');
+            const assistantMsg = serverMessages.find(m => m.role === 'assistant');
 
-            // Scroll to bottom to show new messages
+            // Replace temp message with server version
+            const tempIndex = messages.value.findIndex(m => m.id === tempUserMessage.id);
+            if (tempIndex !== -1 && userMsg) {
+                messages.value[tempIndex] = userMsg;
+            }
+
+            // Add assistant message
+            if (assistantMsg) {
+                messages.value.push(assistantMsg);
+            }
+
+            // Scroll to bottom to show assistant response
             await nextTick();
             scrollToBottom();
 
         } catch (err) {
             console.error('Failed to send message:', err);
             error.value = 'Failed to send message. Please try again.';
-            
+
+            // Remove the optimistic user message
+            const tempIndex = messages.value.findIndex(m => m.id === tempUserMessage.id);
+            if (tempIndex !== -1) {
+                messages.value.splice(tempIndex, 1);
+            }
+
             // Restore the message so user doesn't lose it
             newMessage.value = messageText;
         } finally {
             sending.value = false;
-            
+
             // Refocus the input
             if (messageInput.value) {
             messageInput.value.focus();
@@ -717,31 +752,112 @@ export default {
 /* =========================================
    RESPONSIVE
    ========================================= */
-
 @media (max-width: 768px) {
   .chat-page {
     padding: var(--spacing-sm);
-    height: calc(100vh - 60px);
+    /* Account for mobile keyboard */
+    padding-bottom: calc(var(--spacing-sm) + env(safe-area-inset-bottom));
   }
 
   .chat-header {
     padding: var(--spacing-md) 0;
+    text-align: center;
   }
 
   .chat-header h1 {
     font-size: 1.5rem;
   }
 
+  .chat-header p {
+    font-size: 0.875rem;
+  }
+
+  /* Messages take more width on mobile */
   .message {
     max-width: 90%;
   }
 
+  .message-content {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 0.9375rem;
+    line-height: 1.5;
+  }
+
+  /* Suggested questions: horizontal scroll on mobile */
+  .suggested-questions {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: var(--spacing-sm);
+    gap: var(--spacing-sm);
+  }
+
+  .suggested-question {
+    flex-shrink: 0;
+    white-space: nowrap;
+    font-size: 0.8125rem;
+  }
+
+  /* Input area */
   .chat-input-form {
+    padding: var(--spacing-sm);
+    gap: var(--spacing-sm);
+  }
+
+  .message-input {
+    min-height: 44px; /* Touch-friendly minimum */
+    font-size: 16px; /* Prevents iOS zoom on focus */
     padding: var(--spacing-sm);
   }
 
   .send-button {
+    width: 44px;
+    height: 44px;
     padding: var(--spacing-sm);
+    flex-shrink: 0;
+  }
+
+  /* Actions stack vertically */
+  .chat-actions {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+
+  .action-button {
+    justify-content: center;
+    padding: var(--spacing-sm) var(--spacing-md);
+    min-height: 44px;
+  }
+}
+
+/* Landscape mobile - shorter chat area */
+@media (max-width: 768px) and (orientation: landscape) {
+  .chat-container {
+    max-height: 50vh;
+  }
+  
+  .chat-header {
+    padding: var(--spacing-sm) 0;
+  }
+  
+  .chat-header h1 {
+    font-size: 1.25rem;
+  }
+}
+
+/* Small phones */
+@media (max-width: 375px) {
+  .chat-header h1 {
+    font-size: 1.25rem;
+  }
+
+  .message {
+    max-width: 95%;
+  }
+
+  .message-content {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.875rem;
   }
 }
 </style>

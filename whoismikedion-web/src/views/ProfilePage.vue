@@ -53,9 +53,9 @@
                 <h2>Core Values:</h2>
 
                 <div v-if="profile.core_values && profile.core_values.length > 0" class="values-list">
-                    <div 
+                    <div
                         v-for="value in profile.core_values"
-                        :key="index"
+                        :key="value.value_text"
                         class="value-item">
 
                         <h3>{{ value.value_text }}</h3>
@@ -68,9 +68,6 @@
                 </div>
             </section>
 
-            <button class="refresh-button" @click="fetchProfile">
-                Refresh Profile
-            </button>
         </div> <!-- End Success State -->
 
         <!-- NO DATA -->
@@ -338,18 +335,50 @@ section h2 {
   box-shadow: var(--shadow-lg);
 }
 
-/* Responsive Design */
+
 @media (max-width: 768px) {
   .profile-page {
-    padding: var(--spacing-lg);
+    padding: var(--spacing-md);
   }
-  
-  .profile-header h1 {
+
+  .profile-header {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+  }
+
+  .avatar {
+    width: 150px;
+    height: 150px;
+  }
+
+  .profile-name {
     font-size: 2rem;
   }
-  
+
+  /* Skills grid: 2 columns on tablet, 1 on phone */
+  .skills-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-sm);
+  }
+
+  /* Values: stack on mobile */
+  .values-list {
+    flex-direction: column;
+  }
+
+  .value-card {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
   .skills-grid {
     grid-template-columns: 1fr;
+  }
+
+  .skill-tag {
+    padding: var(--spacing-sm);
+    font-size: 0.875rem;
   }
 }
 </style>

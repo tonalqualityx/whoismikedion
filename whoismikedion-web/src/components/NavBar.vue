@@ -1,104 +1,187 @@
 <template>
-    <nav class="navbar">
-        <div class="navbar-container">
-            <!-- Logo -->
-             <router-link to="/" class="navbar-brand">
-                Who Is Mike Dion?
-             </router-link>
-
-            <!-- Navigation Links -->
-             <div class="navbar-links">
-                <router-link to="/" class="nav-link">Profile</router-link>
-                <router-link to="/stories" class="nav-link">Stories</router-link>
-                <router-link to="/work" class="nav-link">Work History</router-link>
-                <router-link to="/chat" class="nav-link">Chat</router-link>
-
-             </div>
-        </div>
-    </nav>
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-brand">
+        <router-link to="/">Mike Dion</router-link>
+      </div>
+      
+      <!-- Hamburger button (mobile only) -->
+      <button 
+        class="nav-toggle" 
+        @click="isMenuOpen = !isMenuOpen"
+        :aria-expanded="isMenuOpen"
+        aria-label="Toggle navigation menu"
+      >
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </button>
+      
+      <!-- Navigation links -->
+      <ul 
+        class="nav-links" 
+        :class="{ 'nav-open': isMenuOpen }"
+      >
+        <li>
+          <router-link to="/" @click="closeMenu">Profile</router-link>
+        </li>
+        <li>
+          <router-link to="/stories" @click="closeMenu">Stories</router-link>
+        </li>
+        <li>
+          <router-link to="/work" @click="closeMenu">Work History</router-link>
+        </li>
+        <li>
+          <router-link to="/chat" class="chat-link" @click="closeMenu">
+            Start Chat
+          </router-link>
+        </li>
+      </ul>
+    </div>
+  </nav>
 </template>
 
-<script>
-export default {
-    name: 'NavBar',
-};
+<script setup>
+import { ref } from 'vue';
+
+const isMenuOpen = ref(false);
+
+function closeMenu() {
+  isMenuOpen.value = false;
+}
 </script>
 
 <style scoped>
 .navbar {
   background-color: var(--color-primary);
-  padding: 1rem 2rem;
-  box-shadow: var(--shadow-md);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
-.navbar-container {
+.nav-container {
   max-width: 1200px;
   margin: 0 auto;
+  padding: var(--spacing-md) var(--spacing-lg);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
 }
 
-.navbar-brand {
-  font-size: 1.5rem;
+.nav-brand a {
+  color: var(--color-text-inverse);
+  font-size: 1.25rem;
   font-weight: 700;
-  color: white;
   text-decoration: none;
+}
+
+/* Hamburger button - hidden on desktop */
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  width: 44px;
+  height: 44px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--spacing-sm);
+}
+
+.hamburger-line {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background-color: var(--color-text-inverse);
+  border-radius: 2px;
+  transition: transform var(--transition-base), opacity var(--transition-base);
+}
+
+/* Navigation links - horizontal on desktop */
+.nav-links {
+  display: flex;
+  gap: var(--spacing-lg);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  align-items: center;
+}
+
+.nav-links a {
+  color: var(--color-text-inverse);
+  text-decoration: none;
+  font-weight: 500;
+  padding: var(--spacing-xs) var(--spacing-sm);
   transition: opacity var(--transition-fast);
 }
 
-.navbar-brand:hover {
-  opacity: 0.9;
+.nav-links a:hover {
+  opacity: 0.8;
 }
 
-.navbar-links {
-  display: flex;
-  gap: 2rem;
-}
-
-.nav-link {
-  color: white;
-  text-decoration: none;
-  padding: 0.5rem 1rem;
-  border-radius: var(--radius-md);
-  transition: background-color var(--transition-fast);
-  opacity: 0.9;
-}
-
-.nav-link:hover {
-  opacity: 1;
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-/* Active link styling - automatically applied by Vue Router */
-.nav-link.router-link-active {
-  background-color: rgba(255, 255, 255, 0.2);
-  opacity: 1;
-  font-weight: 600;
+.nav-links a.router-link-active {
+  border-bottom: 2px solid var(--color-accent-amber);
 }
 
 .chat-link {
-  background-color: var(--color-accent-amber);
-  color: white !important;
-  padding: 0.5rem 1rem;
+  background-color: var(--color-accent-amber) !important;
+  color: var(--color-text-inverse) !important;
+  padding: var(--spacing-sm) var(--spacing-md) !important;
   border-radius: var(--radius-md);
-  transition: background-color var(--transition-base);
 }
 
 .chat-link:hover {
-  background-color: var(--color-accent-amber-dark);
+  background-color: var(--color-accent-amber-dark) !important;
+  opacity: 1 !important;
 }
 
-/* Mobile responsive */
+/* =========================================
+   MOBILE STYLES (max-width: 768px)
+   ========================================= */
+
 @media (max-width: 768px) {
-  .navbar-container {
-    flex-direction: column;
-    gap: 1rem;
+  .nav-toggle {
+    display: flex;
   }
   
-  .navbar-links {
+  .nav-links {
+    /* Hidden by default on mobile */
+    display: none;
+    flex-direction: column;
     width: 100%;
-    justify-content: center;
+    padding-top: var(--spacing-md);
+    gap: var(--spacing-sm);
+  }
+  
+  .nav-links.nav-open {
+    display: flex;
+  }
+  
+  .nav-links li {
+    width: 100%;
+  }
+  
+  .nav-links a {
+    display: block;
+    padding: var(--spacing-md);
+    text-align: center;
+    border-radius: var(--radius-md);
+  }
+  
+  .nav-links a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    opacity: 1;
+  }
+  
+  .nav-links a.router-link-active {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-bottom: none;
+  }
+  
+  .chat-link {
+    margin-top: var(--spacing-sm);
   }
 }
 </style>

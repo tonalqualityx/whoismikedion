@@ -85,6 +85,12 @@ router.post('/', async (req, res) => {
 
         const { context, metadata: contextMetadata } = await contextBuilder.buildContext(userMessage);
 
+        // Debug logging for production issues
+        console.log('Context build result:', {
+            contextLength: context.length,
+            hasError: !!contextMetadata.error,
+            metadata: contextMetadata
+        });
 
         let assistantReponse;
         let aiMetadata = {};
@@ -116,6 +122,7 @@ router.post('/', async (req, res) => {
             keywords: contextMetadata.keywords,
             skillsFound: contextMetadata.skillsFound,
             storiesFound: contextMetadata.storiesFound,
+            storiesAreFallback: contextMetadata.storiesAreFallback,
             includesWeaknesses: contextMetadata.includesWeaknesses,
             ...aiMetadata
         });
@@ -151,6 +158,7 @@ router.post('/', async (req, res) => {
                 keywords: contextMetadata.keywords,
                 skillsFound: contextMetadata.skillsFound,
                 storiesFound: contextMetadata.storiesFound,
+                storiesAreFallback: contextMetadata.storiesAreFallback,
             }
         });
     } catch (error) {

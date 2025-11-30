@@ -138,20 +138,74 @@ async function findMatchingSkills(keywords) {
 }
 
 /**
- * Find stories related to the matched skills.
- * 
+ * Find stories related to keywords (by title) or matched skills.
+ * Falls back to random stories if no matches found.
+ *
+ * @param {string[]} keywords - Extracted keywords from user message
  * @param {Array} skills - Matched skills
- * @returns {Promise<Array>} - Related stories
+ * @returns {Promise<Object>} - { stories: Array, isFallback: boolean }
  */
 
-async function findRelatedStories(skills) {
-    if(skills.length === 0) {
-        return [];
+async function findRelatedStories(keywords, skills) {
+    // First, try to find stories by keyword match in title
+    if (keywords.length > 0) {
+        const titleConditions = keywords.map(() => `st.title LIKE ?`).join(' OR ');
+        const titleParams = keywords.map(kw => `%${kw}%`);
+
+        const [titleMatches] = await db.query(`
+            SELECT DISTINCT
+                st.story_id,
+                st.title,
+                st.context,
+                st.challenge,
+                st.solution,
+                st.outcome,
+                st.quantifiable_impact,
+                GROUP_CONCAT(DISTINCT sk.canonical_name SEPARATOR ', ') AS demonstrated_skills
+            FROM stories st
+            LEFT JOIN story_skills ss ON st.id = ss.story_id
+            LEFT JOIN skills sk ON ss.skill_id = sk.id
+            WHERE ${titleConditions}
+            GROUP BY st.id
+            ORDER BY st.id
+            LIMIT ?
+        `, [...titleParams, CONFIG.maxStories]);
+
+        if (titleMatches.length > 0) {
+            return { stories: titleMatches, isFallback: false };
+        }
     }
 
-    const skillIds = skills.map(s => s.skill_id);
+    // Second, try to find stories by skill match
+    if (skills.length > 0) {
+        const skillIds = skills.map(s => s.skill_id);
 
-    const [stories] = await db.query(`
+        const [skillMatches] = await db.query(`
+            SELECT DISTINCT
+                st.story_id,
+                st.title,
+                st.context,
+                st.challenge,
+                st.solution,
+                st.outcome,
+                st.quantifiable_impact,
+                GROUP_CONCAT(DISTINCT sk.canonical_name SEPARATOR ', ') AS demonstrated_skills
+            FROM stories st
+            JOIN story_skills ss ON st.id = ss.story_id
+            JOIN skills sk ON ss.skill_id = sk.id
+            WHERE sk.skill_id IN (?)
+            GROUP BY st.id
+            ORDER BY st.id
+            LIMIT ?
+        `, [skillIds, CONFIG.maxStories]);
+
+        if (skillMatches.length > 0) {
+            return { stories: skillMatches, isFallback: false };
+        }
+    }
+
+    // Fallback: return 3 random stories for general context
+    const [fallbackStories] = await db.query(`
         SELECT DISTINCT
             st.story_id,
             st.title,
@@ -162,15 +216,14 @@ async function findRelatedStories(skills) {
             st.quantifiable_impact,
             GROUP_CONCAT(DISTINCT sk.canonical_name SEPARATOR ', ') AS demonstrated_skills
         FROM stories st
-        JOIN story_skills ss ON st.id = ss.story_id
-        JOIN skills sk ON ss.skill_id = sk.id
-        WHERE sk.skill_id IN (?)
+        LEFT JOIN story_skills ss ON st.id = ss.story_id
+        LEFT JOIN skills sk ON ss.skill_id = sk.id
         GROUP BY st.id
-        ORDER BY st.id
+        ORDER BY RAND()
         LIMIT ?
-        `, [skillIds, CONFIG.maxStories]);
-        
-    return stories;
+    `, [CONFIG.maxStories]);
+
+    return { stories: fallbackStories, isFallback: true };
 }
 
 /**
@@ -338,25 +391,30 @@ function formatAllSkills(groupedSkills) {
 /**
  * Format stories into a readable context section.
  * Uses STAR format for clarity.
- * 
+ *
  * @param {Array} stories - Stories array
+ * @param {boolean} isFallback - Whether these are fallback stories (not directly related to query)
  * @returns {string} - Formatted stories text
  */
 
-function formatStories(stories) {
+function formatStories(stories, isFallback = false) {
     if(stories.length === 0) {
         return '';
     }
 
     const formated = stories.map(story => {
         return `### ${story.title} (${story.story_id})
-        **Skills Demonstrated:** ${story.demonstrated_skills}
+        **Skills Demonstrated:** ${story.demonstrated_skills || 'Various'}
         **Situation:** ${story.context}
         **Challenge:** ${story.challenge}
         **Action:** ${story.solution}
         **Result:** ${story.outcome}
         ${story.quantifiable_impact ? `**Quantifiable Impact:** ${story.quantifiable_impact}` : ''}`
     });
+
+    if (isFallback) {
+        return `## Success Stories\n**Note:** These stories are not directly related to the user's query keywords, but provide general context about Mike's experience.\n\n` + formated.join('\n\n');
+    }
 
     return `## Success Stories\n` + formated.join('\n\n');
 }
@@ -444,6 +502,7 @@ async function buildContext(userMessage) {
         keywords: [],
         skillsFound: 0,
         storiesFound: 0,
+        storiesAreFallback: false,
         includesWeaknesses: false,
         includesValues: false
     };
@@ -455,8 +514,10 @@ async function buildContext(userMessage) {
         const skills = await findMatchingSkills(keywords);
         metadata.skillsFound = skills.length;
 
-        const stories = await findRelatedStories(skills);
+        // Find stories by title keywords, then skills, then fallback to random
+        const { stories, isFallback } = await findRelatedStories(keywords, skills);
         metadata.storiesFound = stories.length;
+        metadata.storiesAreFallback = isFallback;
 
         const workHistory = await getWorkHistory(keywords);
 
@@ -476,7 +537,7 @@ async function buildContext(userMessage) {
         const section = [
             formatSkills(skills),
             formatAllSkills(allSkills),
-            formatStories(stories),
+            formatStories(stories, isFallback),
             formatWorkHistory(workHistory),
             formatWeaknesses(weaknesses),
             formatCoreValues(coreValues)
@@ -485,15 +546,15 @@ async function buildContext(userMessage) {
         const context = section.join('\n\n');
 
         return { context, metadata };
-    
+
     } catch (error) {
         console.error('Context builder error:', error);
-        return { 
-            context: '', 
+        return {
+            context: '',
             metadata: {
                 ...metadata,
                 error: error.message
-            } 
+            }
         };
     }
 }

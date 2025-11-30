@@ -122,7 +122,8 @@ async function generateResponse({ userMessage, conversationHistory = [], context
                 totalTokens: response.usage.input_tokens + response.usage.output_tokens
             },
             model: response.model,
-            stopReason: response.stop_reason
+            stopReason: response.stop_reason,
+            systemPromptUsed: fullSystemPrompt
         };
     } catch (error) {
         if(error.status === 401) {

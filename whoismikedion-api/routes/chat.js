@@ -94,6 +94,7 @@ router.post('/', async (req, res) => {
 
         let assistantReponse;
         let aiMetadata = {};
+        let systemPromptUsed = null;
 
         try {
             const aiResult = await claudeService.generateResponse({
@@ -103,6 +104,7 @@ router.post('/', async (req, res) => {
             });
 
             assistantReponse = aiResult.response;
+            systemPromptUsed = aiResult.systemPromptUsed;
             aiMetadata = {
                 model: aiResult.model,
                 usage: aiResult.usage,
@@ -133,8 +135,8 @@ router.post('/', async (req, res) => {
         );
 
         const [assistantMsgResult] = await db.query(
-            'INSERT INTO chat_messages (session_id, role, content, context_used) VALUES (?, ?, ?, ?)',
-            [sessionDbId, 'assistant', assistantReponse, contextUsed]
+            'INSERT INTO chat_messages (session_id, role, content, context_used, system_prompt_used) VALUES (?, ?, ?, ?, ?)',
+            [sessionDbId, 'assistant', assistantReponse, contextUsed, systemPromptUsed]
         );
 
         await db.query(

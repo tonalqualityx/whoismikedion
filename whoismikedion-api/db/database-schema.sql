@@ -140,10 +140,23 @@ CREATE TABLE chat_messages (
     session_id INT NOT NULL,
     role ENUM('user', 'assistant') NOT NULL,
     content TEXT NOT NULL,
-    context_used TEXT, 
+    context_used TEXT,
+    system_prompt_used MEDIUMTEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (session_id) REFERENCES chat_sessions(id) ON DELETE CASCADE,
     INDEX idx_session_messages (session_id, created_at)
+);
+
+
+CREATE TABLE system_prompts (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    prompt_key VARCHAR(50) UNIQUE NOT NULL,
+    prompt_text TEXT NOT NULL,
+    description VARCHAR(255),
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_prompt_key (prompt_key)
 );
 
 

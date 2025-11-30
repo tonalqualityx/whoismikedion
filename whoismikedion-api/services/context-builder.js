@@ -179,6 +179,7 @@ async function findRelatedStories(keywords, skills) {
     // Second, try to find stories by skill match
     if (skills.length > 0) {
         const skillIds = skills.map(s => s.skill_id);
+        const placeholders = skillIds.map(() => '?').join(', ');
 
         const [skillMatches] = await db.query(`
             SELECT DISTINCT
@@ -193,11 +194,11 @@ async function findRelatedStories(keywords, skills) {
             FROM stories st
             JOIN story_skills ss ON st.id = ss.story_id
             JOIN skills sk ON ss.skill_id = sk.id
-            WHERE sk.skill_id IN (?)
+            WHERE sk.skill_id IN (${placeholders})
             GROUP BY st.id
             ORDER BY st.id
             LIMIT ?
-        `, [skillIds, CONFIG.maxStories]);
+        `, [...skillIds, CONFIG.maxStories]);
 
         if (skillMatches.length > 0) {
             return { stories: skillMatches, isFallback: false };

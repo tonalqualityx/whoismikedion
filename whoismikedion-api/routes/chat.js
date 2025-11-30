@@ -91,6 +91,7 @@ router.post('/', async (req, res) => {
             hasError: !!contextMetadata.error,
             metadata: contextMetadata
         });
+        console.log('Context preview (first 500 chars):', context.substring(0, 500));
 
         let assistantReponse;
         let aiMetadata = {};
@@ -105,6 +106,7 @@ router.post('/', async (req, res) => {
 
             assistantReponse = aiResult.response;
             systemPromptUsed = aiResult.systemPromptUsed;
+            console.log('System prompt length:', systemPromptUsed?.length || 0);
             aiMetadata = {
                 model: aiResult.model,
                 usage: aiResult.usage,

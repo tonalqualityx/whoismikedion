@@ -153,7 +153,7 @@ async function findRelatedStories(keywords, skills) {
         const titleParams = keywords.map(kw => `%${kw}%`);
 
         const [titleMatches] = await db.query(`
-            SELECT DISTINCT
+            SELECT
                 st.story_id,
                 st.title,
                 st.context,
@@ -166,7 +166,7 @@ async function findRelatedStories(keywords, skills) {
             LEFT JOIN story_skills ss ON st.id = ss.story_id
             LEFT JOIN skills sk ON ss.skill_id = sk.id
             WHERE ${titleConditions}
-            GROUP BY st.id
+            GROUP BY st.id, st.story_id, st.title, st.context, st.challenge, st.solution, st.outcome, st.quantifiable_impact
             ORDER BY st.id
             LIMIT ?
         `, [...titleParams, CONFIG.maxStories]);
@@ -182,7 +182,7 @@ async function findRelatedStories(keywords, skills) {
         const placeholders = skillIds.map(() => '?').join(', ');
 
         const [skillMatches] = await db.query(`
-            SELECT DISTINCT
+            SELECT
                 st.story_id,
                 st.title,
                 st.context,
@@ -195,7 +195,7 @@ async function findRelatedStories(keywords, skills) {
             JOIN story_skills ss ON st.id = ss.story_id
             JOIN skills sk ON ss.skill_id = sk.id
             WHERE sk.skill_id IN (${placeholders})
-            GROUP BY st.id
+            GROUP BY st.id, st.story_id, st.title, st.context, st.challenge, st.solution, st.outcome, st.quantifiable_impact
             ORDER BY st.id
             LIMIT ?
         `, [...skillIds, CONFIG.maxStories]);
@@ -207,7 +207,7 @@ async function findRelatedStories(keywords, skills) {
 
     // Fallback: return 3 random stories for general context
     const [fallbackStories] = await db.query(`
-        SELECT DISTINCT
+        SELECT
             st.story_id,
             st.title,
             st.context,
@@ -219,7 +219,7 @@ async function findRelatedStories(keywords, skills) {
         FROM stories st
         LEFT JOIN story_skills ss ON st.id = ss.story_id
         LEFT JOIN skills sk ON ss.skill_id = sk.id
-        GROUP BY st.id
+        GROUP BY st.id, st.story_id, st.title, st.context, st.challenge, st.solution, st.outcome, st.quantifiable_impact
         ORDER BY RAND()
         LIMIT ?
     `, [CONFIG.maxStories]);

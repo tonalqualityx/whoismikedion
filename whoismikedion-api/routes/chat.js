@@ -191,7 +191,7 @@ router.get('/:session_id', async (req, res) => {
         // ===============================
 
         const [sessions] = await db.query(
-            'SELECT id, session_id, started_at, message_count FROM chat_sessions WHERE session_id = ?',
+            'SELECT id, session_id, started_at, message_count, cleared_at FROM chat_sessions WHERE session_id = ?',
             [session_id]
         );
 
@@ -199,6 +199,14 @@ router.get('/:session_id', async (req, res) => {
             return res.status(404).json({
                 error: 'Session not found',
                 details: 'No chat session found with that ID'
+            });
+        }
+
+        // Don't return cleared sessions - treat as not found
+        if (sessions[0].cleared_at) {
+            return res.status(404).json({
+                error: 'Session not found',
+                details: 'This chat session has been cleared'
             });
         }
 
@@ -285,9 +293,12 @@ router.get('/:session_id/transcript', async (req, res) => {
 
 /**
  * DELETE /api/chat/:session_id
- * 
- * Delete a chat session and all its messages.
+ *
+ * Mark a chat session as cleared (preserves data for admin review).
  * Used for "Clear Conversation" feature.
+ *
+ * Instead of deleting, we set cleared_at timestamp so the session
+ * can no longer be loaded by the user, but data remains in the database.
  */
 
 router.delete('/:session_id', async (req, res) => {
@@ -295,24 +306,24 @@ router.delete('/:session_id', async (req, res) => {
         const { session_id } = req.params;
 
         const [result] = await db.query(
-            'DELETE FROM chat_sessions WHERE session_id = ?',
+            'UPDATE chat_sessions SET cleared_at = NOW() WHERE session_id = ? AND cleared_at IS NULL',
             [session_id]
         );
 
         if (result.affectedRows === 0) {
             return res.status(404).json({
-                errro: 'Session not found',
+                error: 'Session not found or already cleared',
             });
         }
 
         res.json({
             success: true,
-            message: `Chat session deleted`
+            message: `Chat session cleared`
         });
     } catch (error) {
-        console.error('Delete session error:', error);
+        console.error('Clear session error:', error);
         res.status(500).json({
-            error: 'Failed to delete chat session'
+            error: 'Failed to clear chat session'
         });
     }
 });

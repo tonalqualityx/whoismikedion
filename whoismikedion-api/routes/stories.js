@@ -84,6 +84,47 @@ router.get('/', async (req, res) => {
     }
 });
 
+//================================
+// GET /api/stories/filters
+//================================
+// Returns top skills that appear in at least one story
+// Used to populate the skill filter dropdown
+
+router.get('/filters', async (req, res) => {
+    try {
+        console.log('=== Stories Filters Endpoint Called ===');
+
+        const [rows] = await db.query(`
+            SELECT DISTINCT
+                sk.skill_id,
+                sk.canonical_name
+            FROM skills sk
+            INNER JOIN story_skills ss ON sk.id = ss.skill_id
+            WHERE sk.is_top_skill = TRUE
+            ORDER BY sk.canonical_name ASC
+        `);
+
+        console.log(`Found ${rows.length} filterable skills.`);
+
+        res.json({
+            skills: rows.map(r => ({
+                skill_id: r.skill_id,
+                name: r.canonical_name
+            }))
+        });
+    } catch (error) {
+        console.error('Error fetching story filters:', error);
+        res.status(500).json({
+            error: 'Failed to fetch story filters.',
+            message: error.message
+        });
+    }
+});
+
+//================================
+// GET /api/stories/:story_id
+//================================
+
 router.get('/:story_id', async (req, res) => {
     try {
         const storyId = req.params.story_id;

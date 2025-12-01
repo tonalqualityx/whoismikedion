@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS chat_sessions (
     started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     last_message_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     message_count INT DEFAULT 0,
+    cleared_at TIMESTAMP NULL DEFAULT NULL,
     INDEX idx_session (session_id),
     INDEX idx_started (started_at)
 );

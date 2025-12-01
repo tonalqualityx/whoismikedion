@@ -20,11 +20,13 @@
           class="skill-select"
         >
           <option value="">All Skills</option>
-          <option value="product-strategy">Product Strategy</option>
-          <option value="systems-thinking">Systems Thinking</option>
-          <option value="stakeholder-management">Stakeholder Management</option>
-          <option value="nodejs">Node.js</option>
-          <option value="vuejs">Vue.js</option>
+          <option
+            v-for="skill in availableSkills"
+            :key="skill.skill_id"
+            :value="skill.skill_id"
+          >
+            {{ skill.name }}
+          </option>
         </select>
 
         <span v-if="filteredCount !== totalCount" class="filter-info">
@@ -91,6 +93,7 @@ export default {
     const selectedSkill = ref('');
     const totalCount = ref(0);
     const filteredCount = ref(0);
+    const availableSkills = ref([]);
 
     const fetchStories = async () => {
       try {
@@ -124,7 +127,17 @@ export default {
       fetchStories();
     };
 
+    const fetchFilters = async () => {
+      try {
+        const response = await axios.get(`${config.API_BASE}/stories/filters`);
+        availableSkills.value = response.data.skills;
+      } catch (err) {
+        console.error('Failed to fetch filters:', err);
+      }
+    };
+
     onMounted(() => {
+      fetchFilters();
       fetchStories();
     });
 
@@ -135,6 +148,7 @@ export default {
       selectedSkill,
       totalCount,
       filteredCount,
+      availableSkills,
       fetchStories,
       filterStories,
       clearFilter,
@@ -286,12 +300,6 @@ export default {
 @media (min-width: 640px) {
   .stories-grid {
     grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 1024px) {
-  .stories-grid {
-    grid-template-columns: repeat(3, 1fr);
   }
 }
 </style>

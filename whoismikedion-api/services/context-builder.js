@@ -147,10 +147,10 @@ async function findMatchingSkills(keywords) {
  */
 
 async function findRelatedStories(keywords, skills) {
-    // First, try to find stories by keyword match in title
+    // First, try to find stories by keyword match in title or keywords field
     if (keywords.length > 0) {
-        const titleConditions = keywords.map(() => `st.title LIKE ?`).join(' OR ');
-        const titleParams = keywords.map(kw => `%${kw}%`);
+        const titleConditions = keywords.map(() => `(st.title LIKE ? OR st.keywords LIKE ?)`).join(' OR ');
+        const titleParams = keywords.flatMap(kw => [`%${kw}%`, `%${kw}%`]);
 
         const [titleMatches] = await db.query(`
             SELECT

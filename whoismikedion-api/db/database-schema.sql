@@ -60,6 +60,7 @@ CREATE TABLE stories (
     outcome TEXT NOT NULL,
     quantifiable_impact TEXT,
     skills_demonstrated TEXT,  -- Summary text
+    keywords TEXT,  -- JSON array for keyword matching: ["keyword1", "keyword2"]
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_story_id (story_id)

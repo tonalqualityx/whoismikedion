@@ -312,6 +312,7 @@ async function getAllSkills() {
                 WHEN 'technical_skill' THEN 2
                 WHEN 'soft_skill' THEN 3
                 WHEN 'domain_knowledge' THEN 4
+                WHEN 'hobby' THEN 5
             END,
             CASE proficiency
                 WHEN 'expert' THEN 1
@@ -326,7 +327,8 @@ async function getAllSkills() {
         pm_competency: [],
         technical_skill: [],
         soft_skill: [],
-        domain_knowledge: []
+        domain_knowledge: [],
+        hobby: []
     };
 
     skills.forEach(skill => {
@@ -369,7 +371,8 @@ function formatAllSkills(groupedSkills) {
         pm_competency: 'PM Competencies',
         technical_skill: 'Technical Skills',
         soft_skill: 'Soft Skills',
-        domain_knowledge: 'Domain Knowledge'
+        domain_knowledge: 'Domain Knowledge',
+        hobby: 'Hobbies'
     };
 
     const sections = [];

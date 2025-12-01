@@ -7,7 +7,7 @@
         <h1>Chat with Mike's Digital Projection</h1>
         <h2>AI Powered Chat</h2>
         <p class="chat-intro">
-          Ask me about my experience, skills, or anything else. I'm here to help you determine if we'd be a good fit.
+          Use this AI powered chat to ask me about my experience, skills, or anything else. I'm here to help you determine if we'd be a good fit.
         </p>
       </header>
 

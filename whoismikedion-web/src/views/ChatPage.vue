@@ -115,6 +115,7 @@
         >
           Clear Chat
         </button>
+        <p class="chat-disclaimer">This chat is powered by Claude. It's great, but remember that it may hallucinate sometimes too!</p>
       </div>
 
       <!-- ERROR DISPLAY -->
@@ -709,9 +710,19 @@ export default {
 .chat-actions {
   display: flex;
   justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
   gap: var(--spacing-4);
   margin-top: var(--spacing-4);
   flex-shrink: 0;
+}
+
+.chat-disclaimer {
+  width: 100%;
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin: var(--spacing-2) 0 0 0;
 }
 
 .action-button {

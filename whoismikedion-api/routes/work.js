@@ -26,7 +26,7 @@ router.get('/', async (req, res) => {
             FROM work_history wh
             LEFT JOIN work_story_links wsl ON wh.id = wsl.work_id
             GROUP BY wh.id
-            ORDER BY wh.start_date DESC
+            ORDER BY (wh.end_date IS NULL) DESC, wh.start_date DESC
         `);
 
         console.log(`Found ${workRows.length} work positions`);

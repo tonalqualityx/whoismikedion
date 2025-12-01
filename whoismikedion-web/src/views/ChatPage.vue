@@ -5,6 +5,7 @@
       <!-- HEADER -->
       <header class="chat-header">
         <h1>Chat with Mike's Digital Projection</h1>
+        <h2>AI Powered Chat</h2>
         <p class="chat-intro">
           Ask me about my experience, skills, or anything else. I'm here to help you determine if we'd be a good fit.
         </p>
@@ -377,6 +378,10 @@ export default {
 .chat-header h1 {
   font-size: var(--text-xl);
   margin-bottom: var(--spacing-2);
+}
+
+.chat-header h2 {
+  font-size: var(--text-lg);
 }
 
 @media (min-width: 640px) {

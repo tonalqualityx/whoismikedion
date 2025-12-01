@@ -25,7 +25,7 @@ router.get('/', async (req, res) => {
                 COUNT(DISTINCT wsl.story_id) as story_count
             FROM work_history wh
             LEFT JOIN work_story_links wsl ON wh.id = wsl.work_id
-            GROUP BY wh.id
+            GROUP BY wh.id, wh.title, wh.company, wh.start_date, wh.end_date, wh.key_accomplishments, wh.display_order
             ORDER BY (wh.end_date IS NULL) DESC, wh.start_date DESC
         `);
 

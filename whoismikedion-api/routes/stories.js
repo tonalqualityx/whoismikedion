@@ -48,7 +48,7 @@ router.get('/', async (req, res) => {
         }
 
         query += `
-            GROUP BY s.id
+            GROUP BY s.id, s.story_id, s.title, s.quantifiable_impact, s.context, s.created_at
             ORDER BY s.created_at DESC
         `;
 

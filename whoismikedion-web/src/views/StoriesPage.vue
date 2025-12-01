@@ -95,6 +95,16 @@ export default {
     const filteredCount = ref(0);
     const availableSkills = ref([]);
 
+    // Fisher-Yates shuffle algorithm
+    const shuffleArray = (array) => {
+      const shuffled = [...array];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
+    };
+
     const fetchStories = async () => {
       try {
         loading.value = true;
@@ -107,7 +117,8 @@ export default {
 
         const response = await axios.get(url);
 
-        stories.value = response.data.stories;
+        // Shuffle stories on the client side for random display order
+        stories.value = shuffleArray(response.data.stories);
         totalCount.value = response.data.total;
         filteredCount.value = response.data.stories.length;
       } catch (err) {

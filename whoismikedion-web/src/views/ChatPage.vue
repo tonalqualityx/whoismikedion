@@ -342,14 +342,15 @@ export default {
    ============================================ */
 
 .chat-page {
-  height: calc(100vh - var(--header-height) - var(--spacing-12));
+  height: calc(100vh - var(--header-height) - var(--spacing-4));
   display: flex;
   flex-direction: column;
-  padding: var(--spacing-4);
+  padding: var(--spacing-2);
 }
 
 @media (min-width: 640px) {
   .chat-page {
+    height: calc(100vh - var(--header-height) - var(--spacing-12));
     padding: var(--spacing-6);
   }
 }
@@ -369,32 +370,48 @@ export default {
 
 .chat-header {
   text-align: center;
-  padding-bottom: var(--spacing-4);
+  padding-bottom: var(--spacing-2);
   border-bottom: 1px solid var(--color-border);
-  margin-bottom: var(--spacing-4);
+  margin-bottom: var(--spacing-2);
   flex-shrink: 0;
 }
 
 .chat-header h1 {
-  font-size: var(--text-xl);
-  margin-bottom: var(--spacing-2);
+  font-size: var(--text-lg);
+  margin-bottom: var(--spacing-1);
 }
 
 .chat-header h2 {
-  font-size: var(--text-lg);
-}
-
-@media (min-width: 640px) {
-  .chat-header h1 {
-    font-size: var(--text-2xl);
-  }
+  font-size: var(--text-base);
 }
 
 .chat-intro {
   color: var(--color-text-muted);
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
   max-width: 500px;
   margin: 0 auto;
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .chat-header {
+    padding-bottom: var(--spacing-4);
+    margin-bottom: var(--spacing-4);
+  }
+
+  .chat-header h1 {
+    font-size: var(--text-2xl);
+    margin-bottom: var(--spacing-2);
+  }
+
+  .chat-header h2 {
+    font-size: var(--text-lg);
+  }
+
+  .chat-intro {
+    display: block;
+    font-size: var(--text-sm);
+  }
 }
 
 /* ============================================

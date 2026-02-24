@@ -83,7 +83,7 @@ router.post('/', async (req, res) => {
             isNewSession = true;
         }
 
-        const { context, metadata: contextMetadata } = await contextBuilder.buildContext(userMessage);
+        const { context, metadata: contextMetadata } = await contextBuilder.buildContext(userMessage, conversationHistory);
 
         // Debug logging for production issues
         console.log('Context build result:', {

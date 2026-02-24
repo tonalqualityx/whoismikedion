@@ -54,6 +54,48 @@ function extractKeywords(message) {
 }
 
 /**
+ * Extract keywords from recent conversation history.
+ * Used to enrich context when the current message yields few/no keywords
+ * (e.g., "yes", "tell me more").
+ *
+ * For assistant messages: extracts topic keywords from <strong> tags and story references.
+ * For user messages: runs through standard extractKeywords().
+ * Only processes last 4 messages to keep context recent.
+ *
+ * @param {Array} history - Conversation history array [{role, content}, ...]
+ * @returns {string[]} - Deduplicated keyword array
+ */
+function extractKeywordsFromHistory(history) {
+    if (!history || history.length === 0) return [];
+
+    const recentHistory = history.slice(-4);
+    const allKeywords = [];
+
+    for (const msg of recentHistory) {
+        if (msg.role === 'assistant') {
+            // Extract topic keywords from <strong> tags (bold text in responses)
+            const strongMatches = msg.content.match(/<strong>(.*?)<\/strong>/g) || [];
+            for (const match of strongMatches) {
+                const text = match.replace(/<\/?strong>/g, '');
+                const words = extractKeywords(text);
+                allKeywords.push(...words);
+            }
+
+            // Extract story/project name references (story_id patterns like "restaurant-content-strategy")
+            const storyIdMatches = msg.content.match(/\b[a-z]+-[a-z]+-[a-z]+(?:-[a-z]+)*\b/g) || [];
+            for (const id of storyIdMatches) {
+                const words = id.split('-').filter(w => w.length > 2 && !STOP_WORDS.has(w));
+                allKeywords.push(...words);
+            }
+        } else if (msg.role === 'user') {
+            allKeywords.push(...extractKeywords(msg.content));
+        }
+    }
+
+    return [...new Set(allKeywords)];
+}
+
+/**
  * Check if message is asking about weaknesses/growth areas.
  * 
  * @param {string} message - User's message
@@ -501,18 +543,29 @@ function formatCoreValues(coreValues) {
  * @returns {Promise<Object>} - { context: string, metadata: Object }
  */
 
-async function buildContext(userMessage) {
+async function buildContext(userMessage, conversationHistory = []) {
     const metadata = {
         keywords: [],
         skillsFound: 0,
         storiesFound: 0,
         storiesAreFallback: false,
         includesWeaknesses: false,
-        includesValues: false
+        includesValues: false,
+        enrichedFromHistory: false
     };
 
     try {
-        const keywords = extractKeywords(userMessage);
+        let keywords = extractKeywords(userMessage);
+
+        // If current message yields sparse keywords, enrich from conversation history
+        if (keywords.length <= 1 && conversationHistory.length > 0) {
+            const historyKeywords = extractKeywordsFromHistory(conversationHistory);
+            if (historyKeywords.length > 0) {
+                keywords = [...new Set([...keywords, ...historyKeywords])];
+                metadata.enrichedFromHistory = true;
+            }
+        }
+
         metadata.keywords = keywords;
 
         const skills = await findMatchingSkills(keywords);
@@ -521,6 +574,7 @@ async function buildContext(userMessage) {
         // Find stories by title keywords, then skills, then fallback to random
         const { stories, isFallback } = await findRelatedStories(keywords, skills);
         metadata.storiesFound = stories.length;
+        metadata.storyIds = stories.map(s => s.story_id);
         metadata.storiesAreFallback = isFallback;
 
         const workHistory = await getWorkHistory(keywords);
@@ -567,6 +621,7 @@ async function buildContext(userMessage) {
 module.exports = {
   buildContext,
   extractKeywords,
+  extractKeywordsFromHistory,
   isAskingAboutWeaknesses,
   findMatchingSkills,
   findRelatedStories,

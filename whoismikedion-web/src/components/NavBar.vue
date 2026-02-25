@@ -25,7 +25,7 @@
       <!-- CTA Button (Desktop) -->
       <div class="nav-actions">
         <router-link to="/chat" class="btn btn-primary nav-cta">
-          Start Chat
+          Ask my AI
         </router-link>
       </div>
 
@@ -56,7 +56,7 @@
         </li>
         <li>
           <router-link to="/chat" class="mobile-nav-link mobile-cta" @click="closeMenu">
-            Start Chat
+            Ask my AI
           </router-link>
         </li>
       </ul>

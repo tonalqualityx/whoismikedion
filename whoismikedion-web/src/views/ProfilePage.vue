@@ -44,7 +44,7 @@
 
           <!-- CTA Button -->
           <router-link to="/chat" class="btn btn-primary profile-cta">
-            Start a Conversation
+            Ask my AI
           </router-link>
         </header>
 

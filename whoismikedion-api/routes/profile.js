@@ -44,9 +44,7 @@ router.get('/', async (req, res) => {
                 category
             FROM skills
             WHERE is_top_skill = TRUE
-            ORDER BY
-                FIELD(proficiency, 'expert', 'proficient', 'developing'),
-                canonical_name ASC
+            ORDER BY display_order ASC, canonical_name ASC
         `);
 
         // ========================================

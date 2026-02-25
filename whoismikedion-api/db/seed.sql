@@ -71,7 +71,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `profile` WRITE;
 /*!40000 ALTER TABLE `profile` DISABLE KEYS */;
-INSERT INTO `profile` (`id`, `name`, `tagline`, `photo_url`, `created_at`, `updated_at`) VALUES (1,'Mike Dion','Technical Product Strategist Building Systems That Support Vulnerable Populations','/images/profile.png','2025-11-20 21:15:50','2025-11-29 22:18:56');
+INSERT INTO `profile` (`id`, `name`, `tagline`, `photo_url`, `created_at`, `updated_at`) VALUES (1,'Mike Dion','Product Strategist & Technical Leader | 12+ Years Turning Complex Problems Into Systems People Actually Use','/images/profile.png','2025-11-20 21:15:50','2025-11-29 22:18:56');
 /*!40000 ALTER TABLE `profile` ENABLE KEYS */;
 UNLOCK TABLES;
 

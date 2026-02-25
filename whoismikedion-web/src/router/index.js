@@ -42,6 +42,15 @@ const routes = [
     }
   },
   {
+    path: '/personality',
+    name: 'personality',
+    component: () => import('../views/PersonalityPage.vue'),
+    meta: {
+      title: 'Personality - Mike Dion',
+      description: 'How Mike Dion is wired - CliftonStrengths profile, work style, and what kind of teammate and leader he is.'
+    }
+  },
+  {
     path: '/chat',
     name: 'Chat',
     component: ChatPage,

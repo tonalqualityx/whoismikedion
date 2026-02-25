@@ -20,6 +20,9 @@
         <li>
           <router-link to="/work" class="nav-link">Work History</router-link>
         </li>
+        <li>
+          <router-link to="/personality" class="nav-link">Personality</router-link>
+        </li>
       </ul>
 
       <!-- CTA Button (Desktop) -->
@@ -53,6 +56,9 @@
         </li>
         <li>
           <router-link to="/work" class="mobile-nav-link" @click="closeMenu">Work History</router-link>
+        </li>
+        <li>
+          <router-link to="/personality" class="mobile-nav-link" @click="closeMenu">Personality</router-link>
         </li>
         <li>
           <router-link to="/chat" class="mobile-nav-link mobile-cta" @click="closeMenu">

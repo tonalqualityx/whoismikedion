@@ -19,7 +19,7 @@ const anthropic = new Anthropic.Anthropic({
 // Config
 
 const CONFIG = {
-    model: 'claude-sonnet-4-20250514',
+    model: 'claude-sonnet-4-6',
     maxTokens: 1024,
     temperature: 0.7,
 };

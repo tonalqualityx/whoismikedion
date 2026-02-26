@@ -36,7 +36,13 @@ router.post('/', async (req, res) => {
                 error: 'Message cannot be empty',
                 details: 'Please provide a valid message to send'
             });
-            
+        }
+
+        if(message.trim().length > 1000) {
+            return res.status(400).json({
+                error: 'Message too long',
+                details: 'Messages are limited to 1000 characters'
+            });
         }
 
         const userMessage = message.trim();

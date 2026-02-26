@@ -85,14 +85,17 @@
 
       <!-- INPUT FORM -->
       <form class="chat-input-form" @submit.prevent="handleSubmit">
-        <input
-          v-model="newMessage"
-          type="text"
-          placeholder="Type your message..."
-          :disabled="sending"
-          class="message-input"
-          ref="messageInput"
-        />
+        <div class="input-wrapper">
+          <input
+            v-model="newMessage"
+            type="text"
+            placeholder="Type your message..."
+            :disabled="sending"
+            maxlength="1000"
+            class="message-input"
+            ref="messageInput"
+          />
+        </div>
         <button
           type="submit"
           class="btn btn-primary send-button"
@@ -101,6 +104,13 @@
           {{ sending ? '...' : 'Send' }}
         </button>
       </form>
+      <div
+        v-if="newMessage.length >= 800"
+        class="char-counter"
+        :class="{ 'char-counter--warn': newMessage.length >= 950 }"
+      >
+        {{ newMessage.length }} / 1000
+      </div>
 
       <!-- SESSION ACTIONS -->
       <div v-if="sessionId && messages.length > 0" class="chat-actions">
@@ -191,6 +201,7 @@ export default {
     async function handleSubmit() {
       if (!newMessage.value.trim()) return;
       if (sending.value) return;
+      if (newMessage.value.trim().length > 1000) return;
 
       const messageText = newMessage.value.trim();
       newMessage.value = '';
@@ -689,8 +700,28 @@ export default {
   flex-shrink: 0;
 }
 
-.message-input {
+.input-wrapper {
   flex: 1;
+  position: relative;
+}
+
+.input-wrapper .message-input {
+  width: 100%;
+}
+
+.char-counter {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  text-align: right;
+  padding-top: var(--spacing-1);
+}
+
+.char-counter--warn {
+  color: var(--color-error, #e53e3e);
+  font-weight: 600;
+}
+
+.message-input {
   padding: var(--spacing-3) var(--spacing-4);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
